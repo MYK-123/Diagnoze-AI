@@ -1,1 +1,1 @@
-.venv\\Scripts\\streamlit.cmd run frontend/app.py --server.port 8080 --server.address localhost
+.venv\\Scripts\\streamlit.cmd run backend/app.py --server.port 80 --server.address localhost
