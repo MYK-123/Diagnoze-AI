@@ -3,6 +3,7 @@
 from numpy import log
 import streamlit as st
 from auth.login import login
+import core
 
 
 
@@ -43,3 +44,4 @@ pg = st.navigation([
     st.Page("about.py", title="About"),
 ], position="hidden")
 pg.run()
+
