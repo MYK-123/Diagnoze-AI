@@ -1,5 +1,6 @@
 #!/bin/env python3
 
+from operator import index
 from numpy import log
 import streamlit as st
 from auth.login import login
@@ -22,6 +23,7 @@ def page1():
     if st.button("Go to Login Page"):
         st.session_state['page'] = 'Direct Login'
         st.switch_page(st.Page(login))
+    
 
 def page2():
     st.write("## About Diagnoze AI")
@@ -36,8 +38,24 @@ def page2():
     st.write("- Bob Johnson - Data Scientist")
     st.write("- Carol Williams - UX Designer")
 
+def add_chat(text:str , by:str = "human"):
+    chat_container = st.container(border=True, width="stretch", height="stretch")
+    with chat_container.chat_message(by):
+        chat_container.write(text)
+    return chat_container
+
+def chat_page():
+    st.title("Chat Page")
+    with st.container(border=True, width="stretch", height="stretch"):
+        add_chat("tttsa")
+        imp = st.chat_input()
+        if imp is not None:
+            add_chat(imp)
+    
+    
 
 pg = st.navigation([
+    st.Page(chat_page, title="Main Chat Page"),
     st.Page(page1, title="DSAHDJ"),
     st.Page(page2, title="HHH"),
     st.Page(login, title="Direct Login"),

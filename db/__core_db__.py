@@ -2,6 +2,7 @@
 
 import os
 import sqlite3
+from streamlit import cache_resource
 
 def getDBPath():
     """
@@ -17,4 +18,8 @@ def getDBPathAbs():
     if not os.path.exists(getDBPath()):
         return None
     return os.path.abspath(getDBPath())
+
+
+def getDBObject(db:str = None):
+    return sqlite3.connect(db if db is not None else getDBPath())
 
