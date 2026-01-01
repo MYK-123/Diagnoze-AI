@@ -4,6 +4,7 @@ from operator import index
 from numpy import log
 import streamlit as st
 from auth.login import login
+from backend.char_interface import chat_interface
 import core
 
 
@@ -45,12 +46,8 @@ def add_chat(text:str , by:str = "human"):
     return chat_container
 
 def chat_page():
-    st.title("Chat Page")
-    with st.container(border=True, width="stretch", height="stretch"):
-        add_chat("tttsa")
-        imp = st.chat_input()
-        if imp is not None:
-            add_chat(imp)
+    from backend import char_interface
+    chat_interface()
     
     
 
