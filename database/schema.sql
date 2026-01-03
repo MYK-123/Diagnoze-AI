@@ -68,14 +68,14 @@ CREATE TABLE IF NOT EXISTS "symptoms" (
 CREATE TABLE IF NOT EXISTS "user_session" (
 	"session_id"	INTEGER,
 	"user_id"	INTEGER NOT NULL,
-	"token"	TEXT,
+	"token"	TEXT UNIQUE NOT NULL,
 	"expires_at"	INTEGER,
 	PRIMARY KEY("session_id" AUTOINCREMENT),
 	FOREIGN KEY("user_id") REFERENCES ""
 );
 CREATE TABLE IF NOT EXISTS "users" (
 	"user_id"	INTEGER,
-	"username"	TEXT,
+	"username"	TEXT UNIQUE NOT NULL,
 	"email"	TEXT,
 	"password"	TEXT,
 	"role"	TEXT DEFAULT 'user',

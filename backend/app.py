@@ -1,12 +1,33 @@
 #!/bin/env python3
 
-from operator import index
-from numpy import log
 import streamlit as st
+import streamlit_router as strouter
 from auth.login import login
 from backend.char_interface import chat_interface
-import core
 
+router = strouter.StreamlitRouter()
+
+@router.map("/")
+def index(router: strouter.StreamlitRouter):
+    st.write("# Welcome to Diagnoze AI")
+    st.write("This is the home page of the Diagnoze AI application.")
+    st.write("Use the sidebar to navigate to different sections of the app.")
+    if st.button("Go to About Page"):
+        router.redirect("/about")
+
+@router.map("/about")
+def about_page(router: strouter.StreamlitRouter):
+    st.write("## About Diagnoze AI")
+    st.write("Diagnoze AI is an innovative platform that leverages artificial intelligence to assist healthcare professionals in diagnosing medical conditions more accurately and efficiently.")
+    st.write("Our mission is to enhance patient care through cutting-edge technology.")
+    st.write("### Features:")
+    st.write("- AI-powered diagnostic tools")
+    st.write("- User-friendly interface")
+    st.write("- Secure data handling")
+    st.write("### Team Members:")
+    st.write("- Alice Smith - Lead Developer")
+    st.write("- Bob Johnson - Data Scientist")
+    st.write("- Carol Williams - UX Designer")
 
 
 st.set_page_config(
@@ -58,5 +79,8 @@ pg = st.navigation([
     st.Page(login, title="Direct Login"),
     st.Page("about.py", title="About"),
 ], position="hidden")
-pg.run()
+# pg.run()
+
+
+router.serve()
 
