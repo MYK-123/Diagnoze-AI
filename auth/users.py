@@ -19,15 +19,11 @@ coloumn_names = ["user_id", "username", "email", "password", "role",  "created_a
 
 def __get_cols_from_table(cols: list[str], search_val:str, search_by:str = "user_id"):
     columns = ", ".join(cols)
-    sql = f"SELECT {columns} FROM users WHERE {search_by} = {search_val};"
+    sql = f"SELECT {columns} FROM logs WHERE {search_by} = {search_val};"
     conn = coredb.getDBObject()
     cursor = conn.cursor()
     cursor = cursor.execute(sql)
     dat = cursor.fetchall()
-    for row in dat:
-        for col in row:
-            print(col, sep=' ')
-        print()
     cursor.close()
     conn.close()
     return sql, dat

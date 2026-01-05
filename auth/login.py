@@ -1,16 +1,16 @@
 #!/bin/env python3
 
-from core.users import User
-from core.users import check_auth_info
-from core.users import add_user_to_db
-from core.users import update_user_role as update_user_role_core
-from core.users import delete_user as delete_user_core
-from core.users import get_user_by_id
+from auth.users import User
+from auth.users import check_auth_info
+from auth.users import add_user_to_db
+from auth.users import update_user_role as update_user_role_core
+from auth.users import delete_user as delete_user_core
+from auth.users import get_user_by_id
 
-from core.sessions import create_session
-from core.sessions import validate_session
-from core.sessions import get_user_id_from_session
-from core.sessions import destroy_session
+from auth.sessions import create_session
+from auth.sessions import validate_session
+from auth.sessions import get_user_id_from_session
+from auth.sessions import destroy_session
 
 def authenticate(username, password) -> tuple[bool, User | str]:
     """
