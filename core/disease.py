@@ -2,126 +2,194 @@
 
 from db import __core_db__ as coredb
 
-class Disease:
+# -------------------------
+# Disease Severity Mapping
+# -------------------------
+DISEASE_SEVERITY_RANK = {
+    'low': 1,
+    'medium': 2,
+    'high': 3
+}
 
-    def __init__(self, disease_id, disease_name, category, severity_level):
+
+# -------------------------
+# Disease Entity
+# -------------------------
+class Disease:
+    def __init__(self, disease_id: int, disease_name: str, category: str, severity_level: str):
         self.__disease_id = disease_id
         self.__disease_name = disease_name
         self.__category = category
-        self.__severity_level = severity_level
-    
-    def get_disease_id(self):
+        self.__severity_level = DISEASE_SEVERITY_RANK.get(severity_level, 0)
+
+    # --- Getters ---
+    def get_disease_id(self) -> int:
         return self.__disease_id
-    
-    def get_disease_name(self):
+
+    def get_disease_name(self) -> str:
         return self.__disease_name
-    
-    def get_category(self):
+
+    def get_category(self) -> str:
         return self.__category
-    
-    def get_severity_level(self):
+
+    def get_severity_level(self) -> int:
         return self.__severity_level
 
+    # --- In-place update ---
+    def update(self, disease_name: str, category: str, severity_level: str):
+        self.__disease_name = disease_name
+        self.__category = category
+        self.__severity_level = DISEASE_SEVERITY_RANK.get(severity_level, 0)
 
-class Diseases():
+    # --- Equality & hashing by ID ---
+    def __eq__(self, other):
+        if not isinstance(other, Disease):
+            return False
+        return self.__disease_id == other.__disease_id
 
+    def __hash__(self):
+        return hash(self.__disease_id)
+
+
+# -------------------------
+# Collection of Diseases
+# -------------------------
+class Diseases:
     def __init__(self):
-        self.__contents : list[Disease] = []
-    
-    def get_all_content_list(self):
-        return self.__contents
-    
-    def add(self, content: Disease):
-        if content is not None and content not in self.__contents:
-            self.__contents.append(content)
-    
-    def get_diseases_by_id(self, disease_id: int):
-        contents = Diseases()
-        for i in self.__contents:
-            if i.get_disease_id() == disease_id:
-                contents.add(i)
-        return contents
-    
-    def get_disease_by_name(self, disease_name: str):
-        contents = Diseases()
-        for i in self.__contents:
-            if disease_name in i.get_disease_name():
-                contents.add(i)
-        return contents
-    
-    def get_disease_by_category(self, category: str):
-        contents = Diseases()
-        for i in self.__contents:
-            if category == i.get_category():
-                contents.add(i)
-        return contents
-    
-    def get_disease_by_severity_level(self, severity_level: str):
-        contents = Diseases()
-        for i in self.__contents:
-            if severity_level == i.get_severity_level():
-                contents.add(i)
-        return contents
+        self.__contents: list[Disease] = []
+
+    # --- Access all ---
+    def get_all_diseases_list(self) -> list[Disease]:
+        return self.__contents.copy()
+
+    # --- Add new ---
+    def add(self, disease: Disease):
+        if disease is not None and disease not in self.__contents:
+            self.__contents.append(disease)
+
+    # --- Filters ---
+    def filter_by_id(self, disease_id: int) -> 'Diseases':
+        results = Diseases()
+        for disease in self.__contents:
+            if disease.get_disease_id() == disease_id:
+                results.add(disease)
+        return results
+
+    def filter_by_name(self, disease_name: str) -> 'Diseases':
+        results = Diseases()
+        for disease in self.__contents:
+            if disease_name.lower() in disease.get_disease_name().lower():
+                results.add(disease)
+        return results
+
+    def filter_by_category(self, category: str) -> 'Diseases':
+        results = Diseases()
+        for disease in self.__contents:
+            if category == disease.get_category():
+                results.add(disease)
+        return results
+
+    def filter_by_severity_level(self, severity_level: str) -> 'Diseases':
+        results = Diseases()
+        rank = DISEASE_SEVERITY_RANK.get(severity_level, 0)
+        for disease in self.__contents:
+            if disease.get_severity_level() == rank:
+                results.add(disease)
+        return results
 
 
-cache_all_diseases : Diseases | None = None
+# -------------------------
+# Global Cache
+# -------------------------
+cache_all_diseases: Diseases | None = None
 
-def get_all_diseases() -> Diseases:
-    contetn_list = Diseases()
+
+# -------------------------
+# Load all diseases from DB
+# -------------------------
+def load_all_diseases() -> Diseases:
+    content_list = Diseases()
     conn = coredb.getDBObject()
     try:
         cursor = conn.cursor()
-        cursor = cursor.execute("SELECT disease_id, disease_name, category, severity_level FROM disease;")
-        dat = cursor.fetchall()
-        if dat:
-            for dataOne in dat:
-                if dataOne:
-                    content_1 = Disease(dataOne[0], dataOne[1], dataOne[2], dataOne[3])
-                    contetn_list.add(content_1)
+        cursor.execute("SELECT disease_id, disease_name, category, severity_level FROM disease;")
+        rows = cursor.fetchall()
+        for row in rows:
+            disease = Disease(row[0], row[1], row[2], row[3])
+            content_list.add(disease)
     except Exception as e:
-        print(f"Error retrieving all diseases from disease table: {e}")
-    conn.close()
-    global cache_all_diseases
-    cache_all_diseases = contetn_list
-    return contetn_list
+        print(f"Error retrieving diseases: {e}")
+    finally:
+        conn.close()
 
-def add_new_disease(disease_name, category, severity_level) -> bool:
+    return content_list
+
+
+# -------------------------
+# Add new disease
+# -------------------------
+def add_new_disease(disease_name: str, category: str, severity_level: str) -> bool:
     conn = coredb.getDBObject()
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO disease (disease_name, category, severity_level) VALUES (?, ?, ?)",
+            "INSERT INTO disease (disease_name, category, severity_level) VALUES (?, ?, ?);",
             (disease_name, category, severity_level)
-            )
+        )
         conn.commit()
-        conn.close()
-        get_all_diseases()
+
+        # Incremental cache update
+        global cache_all_diseases
+        if cache_all_diseases is not None and cursor.lastrowid is not None:
+            new_disease = Disease(cursor.lastrowid, disease_name, category, severity_level)
+            cache_all_diseases.add(new_disease)
+        else:
+            cache_all_diseases = load_all_diseases()
+
         return True
     except Exception as e:
         print(f"Error creating disease: {e}")
         conn.rollback()
-        conn.close()
         return False
+    finally:
+        conn.close()
 
-def set_disease_data(disease_id, disease_name, category, severity_level) -> bool:
+
+# -------------------------
+# Update existing disease
+# -------------------------
+def set_disease_data(disease_id: int, disease_name: str, category: str, severity_level: str) -> bool:
     conn = coredb.getDBObject()
     try:
         cursor = conn.cursor()
-        cursor.execute(f"UPDATE disease SET disease_name={disease_name}, category={category}, severity_level={severity_level} WHERE disease_id={disease_id};")
+        cursor.execute(
+            "UPDATE disease SET disease_name=?, category=?, severity_level=? WHERE disease_id=?;",
+            (disease_name, category, severity_level, disease_id)
+        )
         conn.commit()
-        conn.close()
-        get_all_diseases()
+
+        # Incremental cache update
+        global cache_all_diseases
+        if cache_all_diseases is not None:
+            for disease in cache_all_diseases.get_all_diseases_list():
+                if disease.get_disease_id() == disease_id:
+                    disease.update(disease_name, category, severity_level)
+                    break
+
         return True
     except Exception as e:
         print(f"Error updating disease: {e}")
         conn.rollback()
-        conn.close()
         return False
+    finally:
+        conn.close()
 
 
-def get_all_diseases_cache(refresh_cache:bool = False)-> Diseases:
+# -------------------------
+# Get cache (refresh optional)
+# -------------------------
+def get_all_diseases_cache(refresh_cache: bool = False) -> Diseases:
     global cache_all_diseases
-    if cache_all_diseases is None or cache_all_diseases == [] or refresh_cache:
-        get_all_diseases()
+    if cache_all_diseases is None or refresh_cache:
+        cache_all_diseases = load_all_diseases()
     return cache_all_diseases
-
