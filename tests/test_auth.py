@@ -1,7 +1,7 @@
 #!/bin/env python3
 
 import pytest
-from core.users import User
+from auth.users import User
 from auth import login as auth_module
 from tests.test_db import init_db, getDBObject
 

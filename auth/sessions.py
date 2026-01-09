@@ -2,7 +2,7 @@
 
 import uuid
 
-from db import __core_db__ as coredb
+from db import core as coredb
 
 def create_session(user_id: int) -> str:
     """

@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-from db import __core_db__ as coredb
+from db import core as coredb
 
 # -------------------------
 # Disease-Symptom Relation

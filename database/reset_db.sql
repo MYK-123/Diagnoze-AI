@@ -1,0 +1,12 @@
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "educational_content";
+DROP TABLE IF EXISTS "predictions";
+DROP TABLE IF EXISTS "extracted_symptoms";
+DROP TABLE IF EXISTS "symptom_inputs";
+DROP TABLE IF EXISTS "disease_symptoms";
+DROP TABLE IF EXISTS "disease";
+DROP TABLE IF EXISTS "symptoms";
+DROP TABLE IF EXISTS "logs";
+DROP TABLE IF EXISTS "user_session";
+DROP TABLE IF EXISTS "users";
+COMMIT;

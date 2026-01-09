@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-from db import __core_db__ as coredb
+from db import core as coredb
 
 # -------------------------
 # Disease Severity Mapping
@@ -34,6 +34,13 @@ class Disease:
 
     def get_severity_level(self) -> int:
         return self.__severity_level
+    
+    def get_severity_level_str(self) -> str:
+        for k, v in DISEASE_SEVERITY_RANK:
+            if v == self.__severity_level:
+                return k
+        return ""
+    
 
     # --- In-place update ---
     def update(self, disease_name: str, category: str, severity_level: str):
