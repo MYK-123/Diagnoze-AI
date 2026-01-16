@@ -132,32 +132,40 @@ def load_all_diseases() -> Diseases:
     return content_list
 
 
+def get_severity_level_str(sever: int) -> str:
+        for k, v in DISEASE_SEVERITY_RANK:
+            if v == sever:
+                return k
+        return ""
+
 # -------------------------
 # Add new disease
 # -------------------------
-def add_new_disease(disease_name: str, category: str, severity_level: str) -> bool:
+def add_new_disease(disease_name: str, category: str, severity_level: int | str) -> tuple[bool, int]:
     conn = coredb.getDBObject()
+    
+    severity_level_str = get_severity_level_str(severity_level) if isinstance(severity_level, int) else severity_level
     try:
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO disease (disease_name, category, severity_level) VALUES (?, ?, ?);",
-            (disease_name, category, severity_level)
+            (disease_name, category, severity_level_str)
         )
         conn.commit()
-
+        
         # Incremental cache update
         global cache_all_diseases
         if cache_all_diseases is not None and cursor.lastrowid is not None:
-            new_disease = Disease(cursor.lastrowid, disease_name, category, severity_level)
+            new_disease = Disease(cursor.lastrowid, disease_name, category, severity_level_str)
             cache_all_diseases.add(new_disease)
         else:
             cache_all_diseases = load_all_diseases()
 
-        return True
+        return True, cursor.lastrowid if cursor.lastrowid is not None else -1
     except Exception as e:
         print(f"Error creating disease: {e}")
         conn.rollback()
-        return False
+        return False, -1
     finally:
         conn.close()
 

@@ -109,7 +109,7 @@ def load_all_relations() -> DiseaseSymptomRelations:
 # -------------------------
 # Add new relation
 # -------------------------
-def add_new_diseases_symptom_relation(disease_id: int, symptom_id: int, strength: float) -> bool:
+def add_new_diseases_symptom_relation(disease_id: int, symptom_id: int, strength: float = 0.5) -> tuple[bool, int]:
     conn = coredb.getDBObject()
     try:
         cursor = conn.cursor()
@@ -128,11 +128,11 @@ def add_new_diseases_symptom_relation(disease_id: int, symptom_id: int, strength
             # Full reload if cache not initialized
             cache_all_diseases_symptom_relation = load_all_relations()
 
-        return True
+        return True, cursor.lastrowid if cursor.lastrowid is not None else -1
     except Exception as e:
         print(f"Error creating disease-symptom relation: {e}")
         conn.rollback()
-        return False
+        return False, -1
     finally:
         conn.close()
 

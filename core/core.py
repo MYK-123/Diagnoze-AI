@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+import torch
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 import heapq
 from auth.users import User
 from content.educational_content import EducationContent, get_all_education_content_cache
@@ -53,8 +55,6 @@ def get_top_bottom_k_diseases_from_diseases_list(diseases: list[Disease], k: int
     top_k = get_top_k_diseases_from_diseases_list(diseases, k)
     bottom_k = get_bottom_k_diseases_from_diseases_list(diseases, k)
     return top_k, bottom_k
-
-
 
 def get_top_k_diseases_from_diseases_list(diseases: list[Disease], k: int) -> list[Disease]:
     """
@@ -119,15 +119,64 @@ def get_disease_from_symptom_bottem_k(symptoms: list[Symptom], exclude_symptoms:
     bottom_k = get_bottom_k_diseases_from_diseases_list(d, k)
     return bottom_k
 
+def get_symptoms_string_from_symptom_list(symptoms_list: list[Symptom]) -> str:
+    return ", ".join([symptom.get_name() for symptom in symptoms_list])
+
+def get_symptom_list_from_symptom_string(symptom_string: str) -> list[Symptom]:
+    return [symptom for symptom in get_all_symptoms_cache() if symptom.get_name() in symptom_string]
+
+
+def build_prompt(chat_text, symptom_list):
+    return (
+        "Task: Extract patient symptoms.\n"
+        "Rules:\n"
+        "- Use ONLY symptoms from provided list\n"
+        "- Output a comma-seperated list\n"
+        "- Do not add explanations\n\n"
+        f"Symptom List: {','.join(symptom_list)}\n\n"
+        f"Patient chat: {chat_text}\n\n"
+        "Symptoms:"
+    )
+
+def extracted_symptoms(chat_text, SYMPTOM_LIST):
+    MODEL_NAME = "t5-base"
+    tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+    model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+    model.eval()
+
+    prompt = build_prompt
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512
+    )
+
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_length=64,
+            num_beams=4,
+            temperature=0.0,
+            early_stopping=True
+        )
+
+        decoded = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    symptoms = [
+        s.strip().lower()
+        for s in decoded.split(",") if s.strip().lower() in SYMPTOM_LIST
+    ]
+    return sorted(set(symptoms))
 
 # TODO: Later using T5-base or T5-small or FLAN-T5, and train via nltk or spacy
 # TODO: Text input to List of Symptoms or List of include and exclude Symptom
 
 def symptom_list_from_input(from_input :str, user: User) -> SymptomInputs:
     # use NLP to identify list of symptoms from from_input
-
     # also save the query in database
     add_new_symptom_input(user.user_id, from_input)
 
     
+
     return SymptomInputs()

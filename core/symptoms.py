@@ -42,6 +42,9 @@ class Symptom:
 class Symptoms:
     def __init__(self):
         self.__contents: list[Symptom] = []
+    
+    def __iter__(self):
+        return iter(self.__contents)
 
     # --- Access all ---
     def get_all_list(self) -> list[Symptom]:
@@ -104,7 +107,7 @@ def load_all_symptoms() -> Symptoms:
 # -------------------------
 # Add new symptom
 # -------------------------
-def add_new_symptom(symptom_name: str, category: str) -> bool:
+def add_new_symptom(symptom_name: str, category: str="") -> tuple[bool, int]:
     conn = coredb.getDBObject()
     try:
         cursor = conn.cursor()
@@ -122,11 +125,11 @@ def add_new_symptom(symptom_name: str, category: str) -> bool:
         else:
             cache_all_symptoms = load_all_symptoms()
 
-        return True
+        return True, cursor.lastrowid if cursor.lastrowid is not None else -1
     except Exception as e:
         print(f"Error creating symptom: {e}")
         conn.rollback()
-        return False
+        return False, -1
     finally:
         conn.close()
 
