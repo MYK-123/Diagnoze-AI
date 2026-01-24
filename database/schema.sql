@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS "educational_content" (
 	"disease_id"	INTEGER,
 	"title"	TEXT UNIQUE,
 	"content_text"	BLOB,
-	"is_verified"	INTEGER CHECK(is_verified IN (0 OR 1)),
+	"is_verified"	INTEGER CHECK(is_verified IN (0, 1)),
 	PRIMARY KEY("content_id" AUTOINCREMENT),
 	FOREIGN KEY("disease_id") REFERENCES "disease"("disease_id") ON DELETE CASCADE
 );
