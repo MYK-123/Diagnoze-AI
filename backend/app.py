@@ -2,7 +2,7 @@
 
 import streamlit as st
 import streamlit_router as strouter
-from auth.login import login
+from auth.login import login_user
 from backend.char_interface import chat_interface
 
 router = strouter.StreamlitRouter()

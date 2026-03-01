@@ -1,84 +1,76 @@
 #!/bin/env python3
 
 import torch
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+import numpy as np
 import heapq
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+from typing import List, Tuple
 from auth.users import User
 from content.educational_content import EducationContent, get_all_education_content_cache
 from core.disease import Disease, Diseases, get_all_diseases_cache
 from core.disease_symptoms_relation import get_relations_cache
+from core.predictions import add_new_prediction
 from core.symptoms import Symptom, Symptoms, get_all_symptoms_cache
 from core.symptoms_input import SymptomInputs, add_new_symptom_input
 
 
-def get_symptom_list_from_disease(disease: Disease)->list[Symptom]:
+def predict_internal(include_symptoms: Symptoms|list[Symptom]|None, exclude_symptoms: Symptoms|list[Symptom]|None = None)-> List[Tuple[Disease, float]]:
+
+    if not include_symptoms:
+        return []
+
+    # Get Diseases
+    diseases = get_all_diseases_cache()
+
+    # Get Conditional Probablities
+    cond = get_relations_cache()
+    
+    # Uniform Prior
+    prior = 1 / len(diseases)
+
+    results: List[Tuple[Disease, float]] = []
+    for disease in diseases:
+        log_prob: float = np.log(prior)
+        for symptom in include_symptoms:
+            p = cond.get_strengths_by_disease_id_and_symptom_id(disease.get_disease_id(), symptom.get_id(), 0.001)
+            p = np.clip(p, 0.001, 0.999)
+            log_prob += np.log(p)
+        if exclude_symptoms:
+            for symptom in exclude_symptoms:
+                p = cond.get_strengths_by_disease_id_and_symptom_id(disease.get_disease_id(), symptom.get_id(), 0.001)
+                p = np.clip(p, 0.001, 0.999)
+                log_prob -= np.log(p)
+        results.append((disease, np.exp(log_prob)))
+    
+    total = sum(x[1] for x in results)
+    normalized = [(name, prob / total) for name, prob in results]
+
+    return sorted(normalized, key=lambda x: x[1], reverse=True)
+
+def get_symptom_list_from_disease(disease: Disease|None)->list[Symptom]:
     if not disease:
         return []
-    return [s for rel in get_relations_cache().get_all_relation_list() for s in get_all_symptoms_cache().get_all_list() if s.get_id() == rel.get_symptom_id()]
-
-def get_disease_list_from_symptom_list(symptom_list: Symptoms|list[Symptom]|None) -> list[Disease]:
-    """
-    Return the List of Disease by using List of Symptom
-
-    Note: If symptom_list in empty returns []
-    """
-    if not symptom_list:
-        return []
-    relationships_all = get_relations_cache().get_all_relation_list()
-    diseases_all = get_all_diseases_cache().get_all_diseases_list()
-    disease_out = set()
-    for symptom in symptom_list.get_all_list() if isinstance(symptom_list, Symptoms) else symptom_list:
-        relationship_symp = [rel for rel in relationships_all if rel.get_symptom_id() == symptom.get_id()]
-        for rel in relationship_symp:
-            disease_find = {dis for dis in diseases_all if rel.get_disease_id() == dis.get_disease_id()}
-            disease_out.union(disease_find)
-    return list(disease_out)
-
-def get_disease_list_from_symptom_list_incude_exclude(include_list: Symptoms|list[Symptom]|None, exclude_list: Symptoms|list[Symptom]|None) -> list[Disease]:
-    """
-    Return the List of Disease by using List of include Symptom and exclude Symptom
     
-    Note: If include_list in empty returns []
-    """
-    A = get_disease_list_from_symptom_list(include_list)
-    if not A:
-        return []
-    B = get_disease_list_from_symptom_list(include_list)
-    return A if not B else list(set(A) - set(B))
-
-def get_top_bottom_k_diseases_from_diseases_list(diseases: list[Disease], k: int) -> tuple[list[Disease], list[Disease]]:
-    """
-    Return the top and bottom K diseases ranked by severity level.
+    disease_id = disease.get_disease_id()
+    relations = get_relations_cache().get_all_relation_list()
+    related_symptom_ids = {rel.get_symptom_id() for rel in relations if rel.get_disease_id() == disease_id}
     
-    Severity ranking: high > medium > low.
-    """
-    top_k = get_top_k_diseases_from_diseases_list(diseases, k)
-    bottom_k = get_bottom_k_diseases_from_diseases_list(diseases, k)
-    return top_k, bottom_k
+    return [s for s in get_all_symptoms_cache().get_all_list() if s.get_id() in related_symptom_ids]
 
-def get_top_k_diseases_from_diseases_list(diseases: list[Disease], k: int) -> list[Disease]:
+def get_top_k_diseases_from_diseases_list(diseases: list[Disease]|None, k: int) -> list[Disease]:
     """
     Return the top K diseases ranked by severity level.
     
     Severity ranking: high > medium > low.
     """
     
-    if not diseases or k <= 0:
+    if diseases is None or len(diseases) == 0 or k <= 0:
         return []
     
     return heapq.nlargest(k, diseases, key=lambda d: d.get_severity_level())
 
-def get_bottom_k_diseases_from_diseases_list(diseases: list[Disease], k: int) -> list[Disease]:
-    """
-    Return the bottom K diseases ranked by severity level.
-    
-    Severity ranking: high > medium > low.
-    """
-    
-    if not diseases or k <= 0:
-        return []
-    
-    return heapq.nsmallest(k, diseases, key=lambda d: d.get_severity_level())
+def get_top_k_diseases_from_prediction_with_probablities(include_symptoms: Symptoms|list[Symptom]|None, exclude_symptoms: Symptoms|list[Symptom]|None = None, top_k: int = 3) -> List[Tuple[Disease, float]]:
+    return predict_internal(include_symptoms, exclude_symptoms)[:top_k]
 
 def get_education_content_for_disease(disease : Disease|None = None) -> EducationContent|None:
     """	
@@ -87,53 +79,52 @@ def get_education_content_for_disease(disease : Disease|None = None) -> Educatio
     """
     if not disease:
         return None
-    for content in get_all_education_content_cache().get_all_list():
+    for content in get_all_education_content_cache():
         if content.get_disease_id() == disease.get_disease_id():
             return content
     return None
 
-def get_education_content_for_diseases(diseases : Diseases | list[Disease]) -> list[EducationContent]:
+def get_education_content_for_diseases(diseases : Diseases | list[Disease] | None) -> list[EducationContent]:
     """	
     Given a Diseases object or a list of Disease objects,
     return a list of EducationContent objects
     """
-    all_content : list[EducationContent] = get_all_education_content_cache().get_all_list()
-    diseases_list :list[Disease] = diseases.get_all_diseases_list() if isinstance(diseases, Diseases) else diseases
-    if not diseases_list:
+    if diseases is None or len(diseases) < 1:
         return []
-    disease_ids = {d.get_disease_id() for d in diseases_list}
-    return [content for content in all_content if content.get_disease_id() in disease_ids]
+    disease_ids = {d.get_disease_id() for d in diseases}
+    return [content for content in get_all_education_content_cache() if content.get_disease_id() in disease_ids]
 
-def get_disease_from_symptom_top_bottom_k(symptoms: list[Symptom], exclude_symptoms: list[Symptom]|None=None, k: int=3)->tuple[list[Disease], list[Disease]]:
-    d = get_disease_list_from_symptom_list_incude_exclude(symptoms, exclude_symptoms)
-    top_k, bottom_k = get_top_bottom_k_diseases_from_diseases_list(d, k)
-    return top_k, bottom_k
+def predict(input_id: int, symptoms: Symptoms, top_n: int=3)-> List[Disease]:
+    results: List[Disease] = []
+    for disease, score in get_top_k_diseases_from_prediction_with_probablities(symptoms, top_k=top_n):
+        add_new_prediction(input_id, disease.get_disease_id(), score)
+        results.append(disease)
+    return results
 
-def get_disease_from_symptom_top_k(symptoms: list[Symptom], exclude_symptoms: list[Symptom]|None=None, k: int=3)->list[Disease]:
-    d = get_disease_list_from_symptom_list_incude_exclude(symptoms, exclude_symptoms)
-    top_k = get_top_k_diseases_from_diseases_list(d, k)
-    return top_k
 
-def get_disease_from_symptom_bottem_k(symptoms: list[Symptom], exclude_symptoms: list[Symptom]|None=None, k: int=3)->list[Disease]:
-    d = get_disease_list_from_symptom_list_incude_exclude(symptoms, exclude_symptoms)
-    bottom_k = get_bottom_k_diseases_from_diseases_list(d, k)
-    return bottom_k
-
-def get_symptoms_string_from_symptom_list(symptoms_list: list[Symptom]) -> str:
+def get_symptoms_string_from_symptom_list(symptoms_list: list[Symptom]|None) -> str:
+    if not symptoms_list:
+        return ""
     return ", ".join([symptom.get_name() for symptom in symptoms_list])
 
-def get_symptom_list_from_symptom_string(symptom_string: str) -> list[Symptom]:
-    return [symptom for symptom in get_all_symptoms_cache() if symptom.get_name() in symptom_string]
+def get_symptom_list_from_symptom_string(symptom_string: str|None) -> list[Symptom]:
+    if not symptom_string:
+        return []
+    return [symptom for symptom in get_all_symptoms_cache().get_all_list() if symptom.get_name().lower() in symptom_string.lower()]
 
 
 def build_prompt(chat_text, symptom_list):
+    chat_text = chat_text or ""
+    symptom_list = symptom_list or []
+    symptom_str = ",".join(symptom_list) if symptom_list else ""
+    
     return (
         "Task: Extract patient symptoms.\n"
         "Rules:\n"
         "- Use ONLY symptoms from provided list\n"
         "- Output a comma-seperated list\n"
         "- Do not add explanations\n\n"
-        f"Symptom List: {','.join(symptom_list)}\n\n"
+        f"Symptom List: {symptom_str}\n\n"
         f"Patient chat: {chat_text}\n\n"
         "Symptoms:"
     )

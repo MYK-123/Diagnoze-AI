@@ -101,4 +101,3 @@ def add_new_disease_info(info: DiseaseInfo) -> bool:
     if not status:
             return False
     return True
-

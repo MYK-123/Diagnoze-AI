@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 INSERT INTO "educational_content" ("content_id","disease_id","title","content_text","is_verified") VALUES (1,1,'panic disorder','## Description
-Panic disorder is a mental health condition marked by sudden, unexpected panic attacksâ€”intense periods of fear or discomfortâ€”often accompanied by physical symptoms like chest pain, rapid heartbeat, shortness of breath, or dizziness.
+Panic disorder is a mental health condition marked by sudden, unexpected panic attacks—intense periods of fear or discomfort—often accompanied by physical symptoms like chest pain, rapid heartbeat, shortness of breath, or dizziness.
 
 ## Precautions
 - Practice deep breathing
@@ -202,7 +202,7 @@ Cornea infection (keratitis) is an infection of the transparent front part of th
 - Avoid touching eyes
 - Use prescribed eye drops
 - Wear sunglasses
-- Donâ€™t share towels or cosmetics
+- Don’t share towels or cosmetics
 
 ## Medications
 - Antibiotic eye drops (e.g., Ciprofloxacin)
@@ -252,7 +252,7 @@ Marijuana abuse refers to the excessive or harmful use of cannabis, which can le
 - Strength training: Rebuild physical health
 - Group activities: Enhance social motivation and discipline',1);
 INSERT INTO "educational_content" ("content_id","disease_id","title","content_text","is_verified") VALUES (10,10,'bursitis','## Description
-Bursitis is inflammation of the bursaeâ€”small fluid-filled sacs that cushion bones and jointsâ€”causing joint pain, swelling, and limited movement, often from repetitive motion or pressure.
+Bursitis is inflammation of the bursae—small fluid-filled sacs that cushion bones and joints—causing joint pain, swelling, and limited movement, often from repetitive motion or pressure.
 
 ## Precautions
 - Rest the affected joint
@@ -774,7 +774,7 @@ Acute kidney injury (AKI) is a sudden loss of kidney function due to illness, in
 ## Diets
 - Low-protein diet (consult doctor)
 - Limit sodium (avoid processed foods)
-- Potassium regulation (bananas, potatoes â€“ based on medical advice)
+- Potassium regulation (bananas, potatoes — based on medical advice)
 - Hydration monitoring
 - Avoid high-phosphorus foods (dairy, nuts)
 
@@ -1014,7 +1014,7 @@ A vaginal cyst is a fluid-filled sac that forms along the vaginal wall, often be
 - Maintain genital hygiene
 - Avoid tight clothing
 - Do warm sitz baths
-- Follow doctorâ€™s advice
+- Follow doctor’s advice
 
 ## Medications
 - Warm compress
@@ -1656,7 +1656,7 @@ Ear drum damage (tympanic membrane perforation) is a tear or hole in the eardrum
 
 ## Precautions
 - Avoid water entry into ear
-- Donâ€™t insert objects into ear
+- Don’t insert objects into ear
 - Use ear drops as prescribed
 - Follow up with ENT
 
@@ -1820,7 +1820,7 @@ Schizophrenia is a severe psychiatric disorder involving distortions in thinking
 - Tai chi: Improves focus and calm
 - Avoid sensory overload: Choose quiet environments',1);
 INSERT INTO "educational_content" ("content_id","disease_id","title","content_text","is_verified") VALUES (66,66,'sepsis','## Description
-Sepsis is a life-threatening response to infection where the bodyâ€™s immune system causes widespread inflammation, leading to tissue damage, organ failure, and possibly death.
+Sepsis is a life-threatening response to infection where the body’s immune system causes widespread inflammation, leading to tissue damage, organ failure, and possibly death.
 
 ## Precautions
 - Seek urgent medical care
@@ -2077,7 +2077,7 @@ A skin polyp (skin tag) is a small, benign growth of skin that typically appears
 ## Precautions
 - Avoid irritation or injury to area
 - Monitor size and appearance
-- Donâ€™t self-remove
+- Don’t self-remove
 - Seek medical evaluation
 
 ## Medications
@@ -2235,7 +2235,7 @@ Idiopathic painful menstruation (primary dysmenorrhea) is severe menstrual cramp
 - Ginger and turmeric tea
 
 ## Workouts
-- Yoga: Especially childâ€™s pose and reclined twist
+- Yoga: Especially child’s pose and reclined twist
 - Walking: Helps reduce cramps
 - Heat therapy post-exercise: Relieves pain
 - Avoid high-intensity workouts during pain spikes',1);
@@ -2273,7 +2273,7 @@ Appendicitis is inflammation of the appendix, usually requiring surgery, and cau
 ## Precautions
 - Avoid taking laxatives
 - Seek emergency care
-- Donâ€™t eat or drink before surgery
+- Don’t eat or drink before surgery
 - Follow post-op instructions
 
 ## Medications
@@ -2358,7 +2358,7 @@ Peripheral nerve disorders affect the nerves outside the brain and spinal cord, 
 - Avoid repetitive injury
 - Use ergonomic tools
 - Take B vitamins if deficient
-- Follow neurologistâ€™s advice
+- Follow neurologist’s advice
 
 ## Medications
 - Gabapentin
@@ -2691,7 +2691,7 @@ Conjunctivitis (pink eye) is inflammation of the conjunctiva of the eye due to i
 - Use prescribed eye drops
 - Avoid touching/rubbing eyes
 - Wash hands frequently
-- Donâ€™t share towels
+- Don’t share towels
 
 ## Medications
 - Antibiotic eye drops (e.g., Erythromycin, Moxifloxacin)

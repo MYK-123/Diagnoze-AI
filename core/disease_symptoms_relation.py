@@ -51,6 +51,23 @@ class DiseaseSymptomRelations:
     # --- Access all ---
     def get_all_relation_list(self) -> list[DiseaseSymptomRelation]:
         return self.__contents.copy()
+    
+
+    def get_strengths_by_disease_id_and_symptom_id(self, disease_id: int, symptom_id, not_found:float = 0.001) -> float:
+        """
+        Get Strengths from Disease_ids and Symptom_ids
+        return list of relations having same disease_id and symptom_id, 
+        """
+        filtered_result = self.filter_by_disease_id(disease_id).filter_by_symptom_id(symptom_id).get_all_relation_list()
+        if len(filtered_result) == 0:
+            return not_found
+        elif len(filtered_result) > 1:
+            print("ERROR: filter result is not unique")
+            return not_found
+        else:
+            # when program reaches here it has onlyt one relation
+            return filtered_result[0].get_strength()
+        
 
     # --- Add new ---
     def add(self, content: DiseaseSymptomRelation):

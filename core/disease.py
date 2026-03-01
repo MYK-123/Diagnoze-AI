@@ -36,7 +36,7 @@ class Disease:
         return self.__severity_level
     
     def get_severity_level_str(self) -> str:
-        for k, v in DISEASE_SEVERITY_RANK:
+        for k, v in DISEASE_SEVERITY_RANK.items():
             if v == self.__severity_level:
                 return k
         return ""
@@ -64,6 +64,12 @@ class Disease:
 class Diseases:
     def __init__(self):
         self.__contents: list[Disease] = []
+    
+    def __iter__(self):
+        return iter(self.__contents)
+    
+    def __len__(self):
+        return len(self.__contents)
 
     # --- Access all ---
     def get_all_diseases_list(self) -> list[Disease]:
@@ -133,7 +139,7 @@ def load_all_diseases() -> Diseases:
 
 
 def get_severity_level_str(sever: int) -> str:
-        for k, v in DISEASE_SEVERITY_RANK:
+        for k, v in DISEASE_SEVERITY_RANK.items():
             if v == sever:
                 return k
         return ""

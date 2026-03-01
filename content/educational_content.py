@@ -47,6 +47,9 @@ class EducationContent:
 class EducationContents:
     def __init__(self):
         self.__contents: list[EducationContent] = []
+    
+    def __iter__(self):
+        return iter(self.__contents)
 
     # --- Access all ---
     def get_all_list(self) -> list[EducationContent]:
