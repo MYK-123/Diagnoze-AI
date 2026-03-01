@@ -1,0 +1,59 @@
+################################################################################
+###                                                                          ###
+### THIS FILE CONTAINS ALL URLs NEEDED BY backend app for core communication ###
+### AUTHOR - MYK                                                             ###
+###                                                                          ###
+################################################################################
+
+
+
+# Diagnoze AI API Endpoints
+BASE_URL = http://localhost:8000/api/v1
+
+# Authentication
+POST   /auth/login
+POST   /auth/register
+POST   /auth/logout
+POST   /auth/refresh
+POST   /auth/forgot-password
+POST   /auth/reset-password
+
+# User Management
+GET    /users/profile
+PUT    /users/profile
+GET    /users/history
+GET    /users/history/{id}
+DELETE /users/history/{id}
+GET    /users/stats
+
+# Chat & Prediction
+POST   /chat/start-session
+POST   /chat/send-message
+GET    /chat/session/{id}
+POST   /chat/save-session
+DELETE /chat/session/{id}
+POST   /chat/generate-prediction
+
+# Symptoms & Diseases
+GET    /medical/symptoms
+GET    /medical/symptoms/{id}
+GET    /medical/diseases
+GET    /medical/diseases/{id}
+GET    /medical/search?q={query}
+GET    /medical/educational/{disease_id}
+
+# Admin
+GET    /admin/users
+PUT    /admin/users/{id}
+DELETE /admin/users/{id}
+GET    /admin/analytics
+GET    /admin/logs
+POST   /admin/content
+PUT    /admin/content/{id}
+DELETE /admin/content/{id}
+
+# System
+GET    /system/health
+GET    /system/stats
+
+
