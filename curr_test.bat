@@ -1,0 +1,1 @@
+python -m pytest tests\test_api_main.py::TestSystemStatsEndpoint::test_system_stats_with_auth

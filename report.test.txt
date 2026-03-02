@@ -1,0 +1,639 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.6, pytest-8.2.1, pluggy-1.6.0 -- C:\Program Files\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\user\Desktop\MCA Project\Project\Diagnoze-AI
+configfile: pytest.ini
+plugins: anyio-4.12.0, asyncio-1.3.0, cov-7.0.0, env-1.1.3, mock-3.15.1, rerunfailures-15.1, vcr-1.0.2, xdist-3.8.0
+asyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 433 items
+
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_api_prefix PASSED [  0%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_api_title PASSED [  0%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_api_version PASSED [  0%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_cors_origins PASSED [  0%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_database_url_optional PASSED [  1%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_exists PASSED [  1%]
+tests/test_api_config.py::TestSettingsConfiguration::test_settings_security_defaults PASSED [  1%]
+tests/test_api_config.py::TestSettingsClass::test_settings_has_all_fields PASSED [  1%]
+tests/test_api_config.py::TestSettingsClass::test_settings_instantiation PASSED [  2%]
+tests/test_api_data.py::TestDummyDataInitialization::test_disease_data_structure PASSED [  2%]
+tests/test_api_data.py::TestDummyDataInitialization::test_diseases_data_populated PASSED [  2%]
+tests/test_api_data.py::TestDummyDataInitialization::test_init_dummy_data PASSED [  2%]
+tests/test_api_data.py::TestDummyDataInitialization::test_medical_diseases_populated PASSED [  3%]
+tests/test_api_data.py::TestDummyDataInitialization::test_medical_symptoms_populated PASSED [  3%]
+tests/test_api_data.py::TestDummyDataInitialization::test_symptom_data_structure PASSED [  3%]
+tests/test_api_data.py::TestDummyDataInitialization::test_symptoms_data_populated PASSED [  3%]
+tests/test_api_data.py::TestDummyDataInitialization::test_user_data_structure PASSED [  3%]
+tests/test_api_data.py::TestDummyDataInitialization::test_users_data_populated PASSED [  4%]
+tests/test_api_data.py::TestTokenGeneration::test_chat_ids_unique PASSED [  4%]
+tests/test_api_data.py::TestTokenGeneration::test_create_chat_id PASSED  [  4%]
+tests/test_api_data.py::TestTokenGeneration::test_create_session_id PASSED [  4%]
+tests/test_api_data.py::TestTokenGeneration::test_create_token PASSED    [  5%]
+tests/test_api_data.py::TestTokenGeneration::test_create_user_id PASSED  [  5%]
+tests/test_api_data.py::TestTokenGeneration::test_session_ids_unique PASSED [  5%]
+tests/test_api_data.py::TestTokenGeneration::test_tokens_unique PASSED   [  5%]
+tests/test_api_data.py::TestTokenGeneration::test_user_ids_unique PASSED [  6%]
+tests/test_api_database.py::TestDatabaseConnection::test_get_connection_enables_foreign_keys PASSED [  6%]
+tests/test_api_database.py::TestDatabaseConnection::test_get_connection_returns_connection PASSED [  6%]
+tests/test_api_database.py::TestDatabaseConnection::test_get_connection_row_factory PASSED [  6%]
+tests/test_api_database.py::TestDatabaseConnection::test_get_db_closes_connection PASSED [  6%]
+tests/test_api_database.py::TestDatabaseConnection::test_get_db_context_manager PASSED [  7%]
+tests/test_api_database.py::TestDatabase::test_commit PASSED             [  7%]
+tests/test_api_database.py::TestDatabase::test_database_init PASSED      [  7%]
+tests/test_api_database.py::TestDatabase::test_execute_insert PASSED     [  7%]
+tests/test_api_database.py::TestDatabase::test_execute_select PASSED     [  8%]
+tests/test_api_database.py::TestDatabase::test_executemany PASSED        [  8%]
+tests/test_api_database.py::TestDatabase::test_fetch_all_returns_empty_list PASSED [  8%]
+tests/test_api_database.py::TestDatabase::test_fetch_all_returns_list_of_dicts PASSED [  8%]
+tests/test_api_database.py::TestDatabase::test_fetch_one_returns_dict PASSED [  9%]
+tests/test_api_database.py::TestDatabase::test_fetch_one_returns_none_when_not_found PASSED [  9%]
+tests/test_api_database.py::TestDatabase::test_fetch_scalar_returns_none PASSED [  9%]
+tests/test_api_database.py::TestDatabase::test_fetch_scalar_returns_value PASSED [  9%]
+tests/test_api_database.py::TestDatabase::test_rollback PASSED           [  9%]
+tests/test_api_database.py::TestDatabaseInitialization::test_init_db_chat_history_structure FAILED [ 10%]
+tests/test_api_database.py::TestDatabaseInitialization::test_init_db_creates_indexes FAILED [ 10%]
+tests/test_api_database.py::TestDatabaseInitialization::test_init_db_creates_tables FAILED [ 10%]
+tests/test_api_database.py::TestDatabaseInitialization::test_init_db_sessions_table_structure FAILED [ 10%]
+tests/test_api_database.py::TestDatabaseInitialization::test_init_db_users_table_structure FAILED [ 11%]
+tests/test_api_database.py::TestDatabaseConstants::test_database_url_defined PASSED [ 11%]
+tests/test_api_database.py::TestDatabaseConstants::test_database_url_format PASSED [ 11%]
+tests/test_api_database.py::TestDatabaseConstants::test_db_path_defined PASSED [ 11%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_dumps_handles_special_chars PASSED [ 12%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_dumps_serializes_dict PASSED [ 12%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_dumps_serializes_list PASSED [ 12%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_loads_deserializes_list PASSED [ 12%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_loads_deserializes_string PASSED [ 12%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_loads_returns_none_for_empty PASSED [ 13%]
+tests/test_api_db_models.py::TestJsonHelpers::test_json_loads_returns_none_for_none PASSED [ 13%]
+tests/test_api_db_models.py::TestJsonHelpers::test_now_returns_iso_string PASSED [ 13%]
+tests/test_api_db_models.py::TestUser::test_user_created_at_auto_set PASSED [ 13%]
+tests/test_api_db_models.py::TestUser::test_user_from_db_row PASSED      [ 14%]
+tests/test_api_db_models.py::TestUser::test_user_from_db_row_handles_missing_fields PASSED [ 14%]
+tests/test_api_db_models.py::TestUser::test_user_init PASSED             [ 14%]
+tests/test_api_db_models.py::TestUser::test_user_init_with_custom_values PASSED [ 14%]
+tests/test_api_db_models.py::TestUser::test_user_init_with_defaults PASSED [ 15%]
+tests/test_api_db_models.py::TestUser::test_user_to_public_dict PASSED   [ 15%]
+tests/test_api_db_models.py::TestUser::test_user_to_public_dict_includes_preferences PASSED [ 15%]
+tests/test_api_db_models.py::TestSessionToken::test_session_token_created_at_auto_set PASSED [ 15%]
+tests/test_api_db_models.py::TestSessionToken::test_session_token_from_db_row PASSED [ 15%]
+tests/test_api_db_models.py::TestSessionToken::test_session_token_init PASSED [ 16%]
+tests/test_api_db_models.py::TestSessionToken::test_session_token_new_token_format PASSED [ 16%]
+tests/test_api_db_models.py::TestSessionToken::test_session_token_new_token_generates_unique PASSED [ 16%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_from_db_row PASSED [ 16%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_init PASSED [ 17%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_set_symptoms PASSED [ 17%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_set_symptoms_deduplicates PASSED [ 17%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_set_symptoms_sorts PASSED [ 17%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_symptoms_empty PASSED [ 18%]
+tests/test_api_db_models.py::TestChatSession::test_chat_session_symptoms_with_data PASSED [ 18%]
+tests/test_api_db_models.py::TestChatMessage::test_chat_message_from_db_row PASSED [ 18%]
+tests/test_api_db_models.py::TestChatMessage::test_chat_message_init PASSED [ 18%]
+tests/test_api_db_models.py::TestChatMessage::test_chat_message_timestamp_auto_set PASSED [ 18%]
+tests/test_api_db_models.py::TestChatMessage::test_chat_message_to_dict PASSED [ 19%]
+tests/test_api_db_models.py::TestChatMessage::test_chat_message_to_dict_with_data PASSED [ 19%]
+tests/test_api_db_models.py::TestChatHistory::test_chat_history_from_db_row PASSED [ 19%]
+tests/test_api_db_models.py::TestChatHistory::test_chat_history_from_db_row_handles_missing PASSED [ 19%]
+tests/test_api_db_models.py::TestChatHistory::test_chat_history_init PASSED [ 20%]
+tests/test_api_db_models.py::TestChatHistory::test_chat_history_to_dict PASSED [ 20%]
+tests/test_api_db_models.py::TestChatHistory::test_chat_history_to_dict_extracts_date PASSED [ 20%]
+tests/test_api_main.py::TestAPIEndpoints::test_api_info_complete PASSED  [ 20%]
+tests/test_api_main.py::TestAPIEndpoints::test_health_check_endpoint PASSED [ 21%]
+tests/test_api_main.py::TestAPIEndpoints::test_health_check_response_structure PASSED [ 21%]
+tests/test_api_main.py::TestAPIEndpoints::test_health_check_timestamp_format PASSED [ 21%]
+tests/test_api_main.py::TestAPIEndpoints::test_health_check_version PASSED [ 21%]
+tests/test_api_main.py::TestAPIEndpoints::test_root_endpoint PASSED      [ 21%]
+tests/test_api_main.py::TestAPIEndpoints::test_root_endpoint_version PASSED [ 22%]
+tests/test_api_main.py::TestAppInitialization::test_app_docs_enabled PASSED [ 22%]
+tests/test_api_main.py::TestAppInitialization::test_app_exists PASSED    [ 22%]
+tests/test_api_main.py::TestAppInitialization::test_app_has_cors_middleware FAILED [ 22%]
+tests/test_api_main.py::TestAppInitialization::test_app_redoc_enabled PASSED [ 23%]
+tests/test_api_main.py::TestAppInitialization::test_app_title PASSED     [ 23%]
+tests/test_api_main.py::TestAppInitialization::test_app_version PASSED   [ 23%]
+tests/test_api_main.py::TestAppRouters::test_admin_router_included PASSED [ 23%]
+tests/test_api_main.py::TestAppRouters::test_auth_router_included PASSED [ 24%]
+tests/test_api_main.py::TestAppRouters::test_chat_router_included PASSED [ 24%]
+tests/test_api_main.py::TestAppRouters::test_medical_router_included PASSED [ 24%]
+tests/test_api_main.py::TestAppRouters::test_users_router_included PASSED [ 24%]
+tests/test_api_main.py::TestSystemStatsEndpoint::test_system_stats_path_exists PASSED [ 24%]
+tests/test_api_main.py::TestSystemStatsEndpoint::test_system_stats_requires_auth PASSED [ 25%]
+tests/test_api_main.py::TestCORSConfiguration::test_cors_allows_all_origins PASSED [ 25%]
+tests/test_api_main.py::TestCORSConfiguration::test_cors_allows_credentials PASSED [ 25%]
+tests/test_api_main.py::TestEndpointSecurity::test_public_endpoints_accessible PASSED [ 25%]
+tests/test_api_main.py::TestEndpointSecurity::test_response_json_valid PASSED [ 26%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_generates_salt PASSED [ 26%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_has_correct_format PASSED [ 26%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_includes_iterations PASSED [ 26%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_returns_string PASSED [ 27%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_special_characters PASSED [ 27%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_unicode PASSED [ 27%]
+tests/test_auth_db.py::TestPasswordHashing::test_hash_password_with_provided_salt FAILED [ 27%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_case_sensitive PASSED [ 27%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_correct PASSED [ 28%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_empty_hash PASSED [ 28%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_incorrect PASSED [ 28%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_invalid_format PASSED [ 28%]
+tests/test_auth_db.py::TestPasswordHashing::test_verify_password_wrong_scheme PASSED [ 29%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_custom_minutes FAILED [ 29%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_default_minutes FAILED [ 29%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_generates_token FAILED [ 29%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_returns_session_token FAILED [ 30%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_sets_expiration FAILED [ 30%]
+tests/test_auth_db.py::TestCreateSession::test_create_session_stores_in_db FAILED [ 30%]
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_expired_session PASSED [ 30%]
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_inactive_user PASSED [ 30%]
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_invalid_token PASSED [ 31%]
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_valid_token PASSED [ 31%]
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_missing_account_type PASSED [ 31%]
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_non_admin PASSED [ 31%]
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_valid PASSED [ 32%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_empty_symptoms PASSED [ 32%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_no_symptoms PASSED [ 32%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_normalized_probabilities PASSED [ 32%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_returns_tuples PASSED [ 33%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_with_exclude_symptoms PASSED [ 33%]
+tests/test_core.py::TestPredictInternal::test_predict_internal_with_symptoms PASSED [ 33%]
+tests/test_core.py::TestGetSymptomListFromDisease::test_get_symptom_list_no_disease PASSED [ 33%]
+tests/test_core.py::TestGetSymptomListFromDisease::test_get_symptom_list_with_disease PASSED [ 33%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_empty_list PASSED [ 34%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_k_greater_than_list PASSED [ 34%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_negative_k PASSED [ 34%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_none_list PASSED [ 34%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_returns_diseases PASSED [ 35%]
+tests/test_core.py::TestGetTopKDiseasesFromDiseasesList::test_get_top_k_zero_k PASSED [ 35%]
+tests/test_core.py::TestGetTopKDiseasesFromPrediction::test_get_top_k_default_k PASSED [ 35%]
+tests/test_core.py::TestGetTopKDiseasesFromPrediction::test_get_top_k_from_prediction PASSED [ 35%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_for_diseases PASSED [ 36%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_for_diseases_empty PASSED [ 36%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_for_diseases_none PASSED [ 36%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_found PASSED [ 36%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_no_disease PASSED [ 36%]
+tests/test_core.py::TestGetEducationContent::test_get_education_content_not_found PASSED [ 37%]
+tests/test_core.py::TestPredict::test_predict_function PASSED            [ 37%]
+tests/test_core.py::TestPredict::test_predict_multiple PASSED            [ 37%]
+tests/test_core.py::TestGetSymptomsStringFromList::test_get_symptoms_string_empty_list PASSED [ 37%]
+tests/test_core.py::TestGetSymptomsStringFromList::test_get_symptoms_string_multiple PASSED [ 38%]
+tests/test_core.py::TestGetSymptomsStringFromList::test_get_symptoms_string_no_list PASSED [ 38%]
+tests/test_core.py::TestGetSymptomsStringFromList::test_get_symptoms_string_single PASSED [ 38%]
+tests/test_core.py::TestGetSymptomListFromString::test_get_symptom_list_case_insensitive PASSED [ 38%]
+tests/test_core.py::TestGetSymptomListFromString::test_get_symptom_list_empty_string PASSED [ 39%]
+tests/test_core.py::TestGetSymptomListFromString::test_get_symptom_list_from_string PASSED [ 39%]
+tests/test_core.py::TestGetSymptomListFromString::test_get_symptom_list_no_string PASSED [ 39%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_empty_symptom_list PASSED [ 39%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_no_args PASSED    [ 39%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_structure PASSED  [ 40%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_with_both PASSED  [ 40%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_with_symptoms PASSED [ 40%]
+tests/test_core.py::TestBuildPrompt::test_build_prompt_with_text PASSED  [ 40%]
+tests/test_database.py::TestDatabasePaths::test_get_db_path PASSED       [ 41%]
+tests/test_database.py::TestDatabasePaths::test_get_diseases_path PASSED [ 41%]
+tests/test_database.py::TestDatabasePaths::test_get_diseases_symptom_relation_path PASSED [ 41%]
+tests/test_database.py::TestDatabasePaths::test_get_educational_content_path PASSED [ 41%]
+tests/test_database.py::TestDatabasePaths::test_get_reset_schema_path PASSED [ 42%]
+tests/test_database.py::TestDatabasePaths::test_get_schema_path PASSED   [ 42%]
+tests/test_database.py::TestDatabasePaths::test_get_symptoms_path PASSED [ 42%]
+tests/test_database.py::TestDatabaseConnection::test_get_db_object_custom PASSED [ 42%]
+tests/test_database.py::TestDatabaseConnection::test_get_db_object_default PASSED [ 42%]
+tests/test_database.py::TestDatabaseConnection::test_get_db_path_abs_exists PASSED [ 43%]
+tests/test_database.py::TestDatabaseConnection::test_get_db_path_abs_not_exists PASSED [ 43%]
+tests/test_database.py::TestDatabaseOperations::test_db_initialize PASSED [ 43%]
+tests/test_database.py::TestDatabaseOperations::test_populate_default_values PASSED [ 43%]
+tests/test_database.py::TestDatabaseOperations::test_read_file_and_execute PASSED [ 44%]
+tests/test_database.py::TestDatabaseOperations::test_reset_database_with_populate PASSED [ 44%]
+tests/test_database.py::TestDatabaseOperations::test_reset_database_without_populate PASSED [ 44%]
+tests/test_disclaimer.py::TestDisclaimerModule::test_module_exists PASSED [ 44%]
+tests/test_disclaimer.py::TestDisclaimerModule::test_module_import PASSED [ 45%]
+tests/test_disease.py::TestDisease::test_disease_equality PASSED         [ 45%]
+tests/test_disease.py::TestDisease::test_disease_equality_non_disease PASSED [ 45%]
+tests/test_disease.py::TestDisease::test_disease_get_severity_level_str PASSED [ 45%]
+tests/test_disease.py::TestDisease::test_disease_getters PASSED          [ 45%]
+tests/test_disease.py::TestDisease::test_disease_hash PASSED             [ 46%]
+tests/test_disease.py::TestDisease::test_disease_init PASSED             [ 46%]
+tests/test_disease.py::TestDisease::test_disease_invalid_severity PASSED [ 46%]
+tests/test_disease.py::TestDisease::test_disease_invalid_severity_level_str PASSED [ 46%]
+tests/test_disease.py::TestDisease::test_disease_severity_levels PASSED  [ 47%]
+tests/test_disease.py::TestDisease::test_disease_update PASSED           [ 47%]
+tests/test_disease.py::TestDiseases::test_diseases_add PASSED            [ 47%]
+tests/test_disease.py::TestDiseases::test_diseases_add_duplicate PASSED  [ 47%]
+tests/test_disease.py::TestDiseases::test_diseases_add_none PASSED       [ 48%]
+tests/test_disease.py::TestDiseases::test_diseases_filter_by_category PASSED [ 48%]
+tests/test_disease.py::TestDiseases::test_diseases_filter_by_id PASSED   [ 48%]
+tests/test_disease.py::TestDiseases::test_diseases_filter_by_name PASSED [ 48%]
+tests/test_disease.py::TestDiseases::test_diseases_filter_by_severity PASSED [ 48%]
+tests/test_disease.py::TestDiseases::test_diseases_get_all_diseases_list PASSED [ 49%]
+tests/test_disease.py::TestDiseases::test_diseases_init PASSED           [ 49%]
+tests/test_disease.py::TestDiseases::test_diseases_iter PASSED           [ 49%]
+tests/test_disease.py::TestDiseases::test_diseases_len PASSED            [ 49%]
+tests/test_disease.py::TestDiseaseDatabase::test_add_new_disease_exception PASSED [ 50%]
+tests/test_disease.py::TestDiseaseDatabase::test_add_new_disease_success PASSED [ 50%]
+tests/test_disease.py::TestDiseaseDatabase::test_add_new_disease_with_int_severity PASSED [ 50%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_all_diseases_cache PASSED [ 50%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_all_diseases_cache_refresh PASSED [ 51%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_severity_level_str_high PASSED [ 51%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_severity_level_str_invalid PASSED [ 51%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_severity_level_str_low PASSED [ 51%]
+tests/test_disease.py::TestDiseaseDatabase::test_get_severity_level_str_medium PASSED [ 51%]
+tests/test_disease.py::TestDiseaseDatabase::test_load_all_diseases PASSED [ 52%]
+tests/test_disease.py::TestDiseaseDatabase::test_load_all_diseases_empty PASSED [ 52%]
+tests/test_disease.py::TestDiseaseDatabase::test_load_all_diseases_exception PASSED [ 52%]
+tests/test_disease.py::TestDiseaseDatabase::test_set_disease_data_exception PASSED [ 52%]
+tests/test_disease.py::TestDiseaseDatabase::test_set_disease_data_success PASSED [ 53%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_equality PASSED [ 53%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_equality_non_relation PASSED [ 53%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_getters PASSED [ 53%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_hash PASSED [ 54%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_init PASSED [ 54%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelation::test_relation_update PASSED [ 54%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_get_strengths_by_disease_and_symptom PASSED [ 54%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_get_strengths_custom_not_found PASSED [ 54%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_get_strengths_not_found PASSED [ 55%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_add PASSED [ 55%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_add_duplicate PASSED [ 55%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_add_none PASSED [ 55%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_filter_by_disease_id PASSED [ 56%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_filter_by_strength PASSED [ 56%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_filter_by_symptom_id PASSED [ 56%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelations::test_relations_init PASSED [ 56%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_add_new_relation_exception PASSED [ 57%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_add_new_relation_success PASSED [ 57%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_get_relations_cache PASSED [ 57%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_load_all_relations PASSED [ 57%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_load_all_relations_empty PASSED [ 57%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_load_all_relations_exception PASSED [ 58%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_set_relation_data_exception PASSED [ 58%]
+tests/test_disease_symptoms_relation.py::TestDiseaseSymptomRelationsDatabase::test_set_relation_data_success PASSED [ 58%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_equality PASSED [ 58%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_equality_non_content PASSED [ 59%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_getters PASSED [ 59%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_hash PASSED [ 59%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_init PASSED [ 59%]
+tests/test_educational_content.py::TestEducationContent::test_education_content_set_verification PASSED [ 60%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_add PASSED [ 60%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_add_duplicate PASSED [ 60%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_add_none PASSED [ 60%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_filter_by_content_id PASSED [ 60%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_filter_by_disease_id PASSED [ 61%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_filter_by_title PASSED [ 61%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_init PASSED [ 61%]
+tests/test_educational_content.py::TestEducationContents::test_education_contents_iter PASSED [ 61%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_add_new_educational_content_exception PASSED [ 62%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_add_new_educational_content_success PASSED [ 62%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_get_all_education_content_cache PASSED [ 62%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_load_all_education_content PASSED [ 62%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_load_all_education_content_empty PASSED [ 63%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_load_all_education_content_exception PASSED [ 63%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_set_educational_content_verification_exception PASSED [ 63%]
+tests/test_educational_content.py::TestEducationContentDatabase::test_set_educational_content_verification_success PASSED [ 63%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_equality PASSED [ 63%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_equality_non_extracted PASSED [ 64%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_getters PASSED [ 64%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_hash PASSED [ 64%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_init PASSED [ 64%]
+tests/test_extracted_symptoms.py::TestSymptomExtracted::test_symptom_extracted_update PASSED [ 65%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_add PASSED [ 65%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_add_duplicate PASSED [ 65%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_add_none PASSED [ 65%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_confidence_max PASSED [ 66%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_confidence_min PASSED [ 66%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_confidence_range PASSED [ 66%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_confidence_score PASSED [ 66%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_extracted_id PASSED [ 66%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_input_id PASSED [ 67%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_filter_by_symptom_id PASSED [ 67%]
+tests/test_extracted_symptoms.py::TestSymptomExtracteds::test_symptom_extracteds_init PASSED [ 67%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_add_new_symptom_extracted_exception PASSED [ 67%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_add_new_symptom_extracted_success PASSED [ 68%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_get_all_symptom_extracted_cache PASSED [ 68%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_load_all_symptom_extracted PASSED [ 68%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_load_all_symptom_extracted_empty PASSED [ 68%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_load_all_symptom_extracted_exception PASSED [ 69%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_set_symptom_extracted_data_exception PASSED [ 69%]
+tests/test_extracted_symptoms.py::TestSymptomExtractedsDatabase::test_set_symptom_extracted_data_success PASSED [ 69%]
+tests/test_login.py::TestLogin::test_authenticate_failure PASSED         [ 69%]
+tests/test_login.py::TestLogin::test_authenticate_success PASSED         [ 69%]
+tests/test_login.py::TestLogin::test_create_new_user_failure PASSED      [ 70%]
+tests/test_login.py::TestLogin::test_create_new_user_success PASSED      [ 70%]
+tests/test_login.py::TestLogin::test_delete_user PASSED                  [ 70%]
+tests/test_login.py::TestLogin::test_get_user_from_session_invalid PASSED [ 70%]
+tests/test_login.py::TestLogin::test_get_user_from_session_valid PASSED  [ 71%]
+tests/test_login.py::TestLogin::test_is_session_valid_false PASSED       [ 71%]
+tests/test_login.py::TestLogin::test_is_session_valid_true PASSED        [ 71%]
+tests/test_login.py::TestLogin::test_login_user_invalid_credentials PASSED [ 71%]
+tests/test_login.py::TestLogin::test_login_user_session_creation_failure PASSED [ 72%]
+tests/test_login.py::TestLogin::test_login_user_success PASSED           [ 72%]
+tests/test_login.py::TestLogin::test_logout_user PASSED                  [ 72%]
+tests/test_login.py::TestLogin::test_update_user_role PASSED             [ 72%]
+tests/test_logs.py::TestLog::test_log_attributes PASSED                  [ 72%]
+tests/test_logs.py::TestLog::test_log_different_actions PASSED           [ 73%]
+tests/test_logs.py::TestLog::test_log_init PASSED                        [ 73%]
+tests/test_logs.py::TestLogsDatabase::test_add_new_log_exception PASSED  [ 73%]
+tests/test_logs.py::TestLogsDatabase::test_add_new_log_success PASSED    [ 73%]
+tests/test_logs.py::TestLogsDatabase::test_get_all_logs_empty PASSED     [ 74%]
+tests/test_logs.py::TestLogsDatabase::test_get_all_logs_exception PASSED [ 74%]
+tests/test_logs.py::TestLogsDatabase::test_get_all_logs_success PASSED   [ 74%]
+tests/test_predictions.py::TestPrediction::test_prediction_equality PASSED [ 74%]
+tests/test_predictions.py::TestPrediction::test_prediction_equality_non_prediction PASSED [ 75%]
+tests/test_predictions.py::TestPrediction::test_prediction_getters PASSED [ 75%]
+tests/test_predictions.py::TestPrediction::test_prediction_hash PASSED   [ 75%]
+tests/test_predictions.py::TestPrediction::test_prediction_init PASSED   [ 75%]
+tests/test_predictions.py::TestPrediction::test_prediction_update PASSED [ 75%]
+tests/test_predictions.py::TestPredictions::test_predictions_add PASSED  [ 76%]
+tests/test_predictions.py::TestPredictions::test_predictions_add_duplicate PASSED [ 76%]
+tests/test_predictions.py::TestPredictions::test_predictions_add_none PASSED [ 76%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_confidence_max PASSED [ 76%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_confidence_min PASSED [ 77%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_confidence_range PASSED [ 77%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_confidence_score PASSED [ 77%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_disease_id PASSED [ 77%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_input_id PASSED [ 78%]
+tests/test_predictions.py::TestPredictions::test_predictions_filter_by_prediction_id PASSED [ 78%]
+tests/test_predictions.py::TestPredictions::test_predictions_init PASSED [ 78%]
+tests/test_predictions.py::TestPredictionsDatabase::test_add_new_prediction_exception PASSED [ 78%]
+tests/test_predictions.py::TestPredictionsDatabase::test_add_new_prediction_success PASSED [ 78%]
+tests/test_predictions.py::TestPredictionsDatabase::test_get_all_predictions_cache PASSED [ 79%]
+tests/test_predictions.py::TestPredictionsDatabase::test_load_all_predictions PASSED [ 79%]
+tests/test_predictions.py::TestPredictionsDatabase::test_load_all_predictions_empty PASSED [ 79%]
+tests/test_predictions.py::TestPredictionsDatabase::test_load_all_predictions_exception PASSED [ 79%]
+tests/test_predictions.py::TestPredictionsDatabase::test_set_prediction_data_exception PASSED [ 80%]
+tests/test_predictions.py::TestPredictionsDatabase::test_set_prediction_data_success PASSED [ 80%]
+tests/test_sessions.py::TestSessions::test_create_session_exception PASSED [ 80%]
+tests/test_sessions.py::TestSessions::test_create_session_success PASSED [ 80%]
+tests/test_sessions.py::TestSessions::test_destroy_session_exception PASSED [ 81%]
+tests/test_sessions.py::TestSessions::test_destroy_session_success PASSED [ 81%]
+tests/test_sessions.py::TestSessions::test_get_user_id_from_session_exception PASSED [ 81%]
+tests/test_sessions.py::TestSessions::test_get_user_id_from_session_found PASSED [ 81%]
+tests/test_sessions.py::TestSessions::test_get_user_id_from_session_not_found PASSED [ 81%]
+tests/test_sessions.py::TestSessions::test_validate_session_exception PASSED [ 82%]
+tests/test_sessions.py::TestSessions::test_validate_session_invalid PASSED [ 82%]
+tests/test_sessions.py::TestSessions::test_validate_session_valid PASSED [ 82%]
+tests/test_symptoms.py::TestSymptom::test_symptom_equality PASSED        [ 82%]
+tests/test_symptoms.py::TestSymptom::test_symptom_equality_non_symptom PASSED [ 83%]
+tests/test_symptoms.py::TestSymptom::test_symptom_getters PASSED         [ 83%]
+tests/test_symptoms.py::TestSymptom::test_symptom_hash PASSED            [ 83%]
+tests/test_symptoms.py::TestSymptom::test_symptom_init PASSED            [ 83%]
+tests/test_symptoms.py::TestSymptom::test_symptom_update PASSED          [ 84%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_add PASSED           [ 84%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_add_duplicate PASSED [ 84%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_add_none PASSED      [ 84%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_filter_by_category PASSED [ 84%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_filter_by_id PASSED  [ 85%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_filter_by_name PASSED [ 85%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_filter_case_insensitive PASSED [ 85%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_get_all_list PASSED  [ 85%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_init PASSED          [ 86%]
+tests/test_symptoms.py::TestSymptoms::test_symptoms_iter PASSED          [ 86%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_add_new_symptom_exception PASSED [ 86%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_add_new_symptom_success PASSED [ 86%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_get_all_symptoms_cache PASSED [ 87%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_get_all_symptoms_cache_refresh PASSED [ 87%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_load_all_symptoms PASSED [ 87%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_load_all_symptoms_empty PASSED [ 87%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_load_all_symptoms_exception PASSED [ 87%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_set_symptom_data_exception PASSED [ 88%]
+tests/test_symptoms.py::TestSymptomsDatabase::test_set_symptom_data_success PASSED [ 88%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_equality PASSED [ 88%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_equality_non_input PASSED [ 88%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_getters PASSED [ 89%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_hash PASSED [ 89%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_init PASSED [ 89%]
+tests/test_symptoms_input.py::TestSymptomInput::test_symptom_input_update PASSED [ 89%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_add PASSED [ 90%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_add_duplicate PASSED [ 90%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_add_none PASSED [ 90%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_filter_by_created_at PASSED [ 90%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_filter_by_input_id PASSED [ 90%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_filter_by_user_id PASSED [ 91%]
+tests/test_symptoms_input.py::TestSymptomInputs::test_symptom_inputs_init PASSED [ 91%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_add_new_symptom_input_exception PASSED [ 91%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_add_new_symptom_input_success PASSED [ 91%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_get_all_symptom_inputs_cache PASSED [ 92%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_load_all_symptom_inputs PASSED [ 92%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_load_all_symptom_inputs_empty PASSED [ 92%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_load_all_symptom_inputs_exception PASSED [ 92%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_set_symptom_input_data_exception PASSED [ 93%]
+tests/test_symptoms_input.py::TestSymptomInputsDatabase::test_set_symptom_input_data_success PASSED [ 93%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_basic PASSED [ 93%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_empty_chat PASSED [ 93%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_empty_symptoms PASSED [ 93%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_single_symptom PASSED [ 94%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_special_characters PASSED [ 94%]
+tests/test_train.py::TestBuildTrainingPrompt::test_build_training_prompt_structure PASSED [ 94%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_basic PASSED [ 94%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_empty_input PASSED [ 95%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_empty_output PASSED [ 95%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_long_strings PASSED [ 95%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_return_structure PASSED [ 95%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_special_characters PASSED [ 96%]
+tests/test_train.py::TestGetTrainingData::test_get_training_data_unicode PASSED [ 96%]
+tests/test_users.py::TestUser::test_user_attributes PASSED               [ 96%]
+tests/test_users.py::TestUser::test_user_different_roles PASSED          [ 96%]
+tests/test_users.py::TestUser::test_user_init PASSED                     [ 96%]
+tests/test_users.py::TestUserAuthentication::test_add_user_to_db_exception PASSED [ 97%]
+tests/test_users.py::TestUserAuthentication::test_add_user_to_db_success PASSED [ 97%]
+tests/test_users.py::TestUserAuthentication::test_check_auth_info_exception PASSED [ 97%]
+tests/test_users.py::TestUserAuthentication::test_check_auth_info_failure PASSED [ 97%]
+tests/test_users.py::TestUserAuthentication::test_check_auth_info_success PASSED [ 98%]
+tests/test_users.py::TestUserAuthentication::test_delete_user_exception PASSED [ 98%]
+tests/test_users.py::TestUserAuthentication::test_delete_user_success PASSED [ 98%]
+tests/test_users.py::TestUserAuthentication::test_get_user_by_id_exception PASSED [ 98%]
+tests/test_users.py::TestUserAuthentication::test_get_user_by_id_not_found PASSED [ 99%]
+tests/test_users.py::TestUserAuthentication::test_get_user_by_id_success PASSED [ 99%]
+tests/test_users.py::TestUserAuthentication::test_update_user_role_exception PASSED [ 99%]
+tests/test_users.py::TestUserAuthentication::test_update_user_role_invalid_role PASSED [ 99%]
+tests/test_users.py::TestUserAuthentication::test_update_user_role_success PASSED [100%]
+ERROR: Coverage failure: total of 74 is less than fail-under=80
+
+
+================================== FAILURES ===================================
+_______ TestDatabaseInitialization.test_init_db_chat_history_structure ________
+tests\test_api_database.py:317: in test_init_db_chat_history_structure
+    cursor = conn.cursor()
+E   sqlite3.ProgrammingError: Cannot operate on a closed database.
+___________ TestDatabaseInitialization.test_init_db_creates_indexes ___________
+tests\test_api_database.py:258: in test_init_db_creates_indexes
+    cursor = conn.cursor()
+E   sqlite3.ProgrammingError: Cannot operate on a closed database.
+___________ TestDatabaseInitialization.test_init_db_creates_tables ____________
+tests\test_api_database.py:233: in test_init_db_creates_tables
+    cursor = conn.cursor()
+E   sqlite3.ProgrammingError: Cannot operate on a closed database.
+______ TestDatabaseInitialization.test_init_db_sessions_table_structure _______
+tests\test_api_database.py:297: in test_init_db_sessions_table_structure
+    cursor = conn.cursor()
+E   sqlite3.ProgrammingError: Cannot operate on a closed database.
+________ TestDatabaseInitialization.test_init_db_users_table_structure ________
+tests\test_api_database.py:277: in test_init_db_users_table_structure
+    cursor = conn.cursor()
+E   sqlite3.ProgrammingError: Cannot operate on a closed database.
+_____________ TestAppInitialization.test_app_has_cors_middleware ______________
+tests\test_api_main.py:114: in test_app_has_cors_middleware
+    self.assertIn("CORSMiddleware", middleware_types)
+E   AssertionError: 'CORSMiddleware' not found in ['type']
+__________ TestPasswordHashing.test_hash_password_with_provided_salt __________
+tests\test_auth_db.py:46: in test_hash_password_with_provided_salt
+    hash1 = hash_password("password", salt=salt)
+api\auth_db.py:24: in hash_password
+    salt_bytes = bytes.fromhex(salt) if salt else secrets.token_bytes(16)
+E   ValueError: non-hexadecimal number found in fromhex() arg at position 12
+____________ TestCreateSession.test_create_session_custom_minutes _____________
+tests\test_auth_db.py:246: in test_create_session_custom_minutes
+    session = create_session(self.conn, user, minutes=60)
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+____________ TestCreateSession.test_create_session_default_minutes ____________
+tests\test_auth_db.py:226: in test_create_session_default_minutes
+    session = create_session(self.conn, user)  # Default 30 minutes
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+____________ TestCreateSession.test_create_session_generates_token ____________
+tests\test_auth_db.py:177: in test_create_session_generates_token
+    session = create_session(self.conn, user)
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+_________ TestCreateSession.test_create_session_returns_session_token _________
+tests\test_auth_db.py:162: in test_create_session_returns_session_token
+    session = create_session(self.conn, user)
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+____________ TestCreateSession.test_create_session_sets_expiration ____________
+tests\test_auth_db.py:192: in test_create_session_sets_expiration
+    session = create_session(self.conn, user, minutes=30)
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+_____________ TestCreateSession.test_create_session_stores_in_db ______________
+tests\test_auth_db.py:206: in test_create_session_stores_in_db
+    session = create_session(self.conn, user)
+api\auth_db.py:46: in create_session
+    db.execute(
+api\database.py:36: in execute
+    return self.cursor.execute(query, params)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+============================== warnings summary ===============================
+api\config.py:4
+  C:\Users\user\Desktop\MCA Project\Project\Diagnoze-AI\api\config.py:4: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Settings(BaseSettings):
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_expired_session
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentUser.test_get_current_user_expired_session' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_inactive_user
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentUser.test_get_current_user_inactive_user' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_invalid_token
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentUser.test_get_current_user_invalid_token' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentUser::test_get_current_user_valid_token
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentUser.test_get_current_user_valid_token' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_missing_account_type
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentAdmin.test_get_current_admin_missing_account_type' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_non_admin
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentAdmin.test_get_current_admin_non_admin' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_auth_db.py::TestGetCurrentAdmin::test_get_current_admin_valid
+  C:\Program Files\Python310\lib\unittest\case.py:549: RuntimeWarning: coroutine 'TestGetCurrentAdmin.test_get_current_admin_valid' was never awaited
+    method()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.10.6-final-0 _______________
+
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+api\__init__.py                         0      0   100%
+api\auth_db.py                         60     26    57%   53-62, 69-98, 102-104
+api\config.py                          14      0   100%
+api\data.py                            66     14    79%   267-293, 297-302
+api\database.py                        61      0   100%
+api\db_models.py                       89      0   100%
+api\main.py                            38      9    76%   16-19, 73-77, 85, 88
+api\models\responses.py                27     20    26%   6-15, 19-31, 36, 51-66, 70
+api\models\schemas.py                 121      0   100%
+api\routers\__init__.py                 0      0   100%
+api\routers\admin.py                   71     52    27%   24-48, 58-82, 87-100, 105-146, 168-169
+api\routers\auth.py                    67     43    36%   20-44, 57-109, 122-128, 133-151, 160, 167
+api\routers\chat.py                   171    142    17%   30-43, 55-120, 125-198, 205-250, 258-271, 280-347, 352-371, 386-400
+api\routers\medical.py                106     85    20%   22-60, 65-81, 91-139, 144-179, 189-229, 234-280
+api\routers\users.py                   70     47    33%   18, 27-48, 58-76, 89-100, 105-119, 124-143
+auth\__init__.py                        0      0   100%
+auth\login.py                          47      0   100%
+auth\sessions.py                       54      0   100%
+auth\users.py                          92      9    90%   21-29
+content\__init__.py                     0      0   100%
+content\educational_content.py        104      6    94%   130-131, 160-163
+core\__init__.py                       79     53    33%   14-21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63-66, 70, 73-82, 85, 88-103
+core\core.py                           93     13    86%   133-161, 169-173
+core\disease.py                       126      6    95%   165-166, 195-198
+core\disease_symptoms_relation.py     111      8    93%   65-66, 142-143, 173-176
+core\extracted_symptoms.py            127      6    95%   158-159, 188-191
+core\logs.py                           47      9    81%   16-24
+core\predictions.py                   127      6    95%   154-155, 184-187
+core\symptoms.py                      101      6    94%   123-124, 153-156
+core\symptoms_input.py                104      6    94%   126-127, 156-159
+db\__init__.py                          0      0   100%
+db\core.py                             47      0   100%
+models\__init__.py                     23     14    39%   11-14, 17-18, 21-24, 27-30
+models\train.py                         5      0   100%
+safety\__init__.py                      0      0   100%
+safety\disclaimer.py                    0      0   100%
+-----------------------------------------------------------------
+TOTAL                                2248    580    74%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+FAIL Required test coverage of 80% not reached. Total coverage: 74.20%
+=========================== short test summary info ===========================
+FAILED tests/test_api_database.py::TestDatabaseInitialization::test_init_db_chat_history_structure
+FAILED tests/test_api_database.py::TestDatabaseInitialization::test_init_db_creates_indexes
+FAILED tests/test_api_database.py::TestDatabaseInitialization::test_init_db_creates_tables
+FAILED tests/test_api_database.py::TestDatabaseInitialization::test_init_db_sessions_table_structure
+FAILED tests/test_api_database.py::TestDatabaseInitialization::test_init_db_users_table_structure
+FAILED tests/test_api_main.py::TestAppInitialization::test_app_has_cors_middleware
+FAILED tests/test_auth_db.py::TestPasswordHashing::test_hash_password_with_provided_salt
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_custom_minutes
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_default_minutes
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_generates_token
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_returns_session_token
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_sets_expiration
+FAILED tests/test_auth_db.py::TestCreateSession::test_create_session_stores_in_db
+================ 13 failed, 420 passed, 10 warnings in 31.49s =================

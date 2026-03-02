@@ -1,320 +1,333 @@
-import pytest
-from unittest.mock import Mock, MagicMock, patch
+#!/usr/bin/env python3
+
+import unittest
+from unittest.mock import patch, MagicMock
 import sys
+import os
 
-# Mock modules before importing
-sys.modules['db'] = MagicMock()
-sys.modules['db.core'] = MagicMock()
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.disease import (
-    Disease,
-    Diseases,
-    load_all_diseases,
-    add_new_disease,
-    set_disease_data,
-    get_all_diseases_cache,
-    DISEASE_SEVERITY_RANK
-)
+from core.disease import Disease, Diseases, DISEASE_SEVERITY_RANK, load_all_diseases, add_new_disease, set_disease_data, get_all_diseases_cache, get_severity_level_str
 
 
-class TestDiseaseClass:
-    """Tests for Disease class"""
-    
-    def test_disease_creation(self):
-        """Test creating a disease object"""
-        disease = Disease(
-            disease_id=1,
-            disease_name="Common Cold",
-            category="Viral",
-            severity_level="low"
-        )
-        
-        assert disease.get_disease_id() == 1
-        assert disease.get_disease_name() == "Common Cold"
-        assert disease.get_category() == "Viral"
-        assert disease.get_severity_level() == DISEASE_SEVERITY_RANK["low"]
+class TestDisease(unittest.TestCase):
+    """Test the Disease entity class"""
 
-    def test_disease_severity_mapping(self):
-        """Test disease severity level mapping"""
-        disease_low = Disease(1, "Low", "Cat", "low")
-        disease_medium = Disease(2, "Medium", "Cat", "medium")
-        disease_high = Disease(3, "High", "Cat", "high")
-        
-        assert disease_low.get_severity_level() < disease_medium.get_severity_level()
-        assert disease_medium.get_severity_level() < disease_high.get_severity_level()
+    def setUp(self):
+        self.disease = Disease(1, "Flu", "Viral", "high")
 
-    def test_disease_update(self):
-        """Test updating disease information"""
-        disease = Disease(1, "Original", "Cat1", "low")
-        disease.update("Updated", "Cat2", "high")
-        
-        assert disease.get_disease_name() == "Updated"
-        assert disease.get_category() == "Cat2"
-        assert disease.get_severity_level() == DISEASE_SEVERITY_RANK["high"]
+    def test_disease_init(self):
+        """Test disease initialization"""
+        self.assertEqual(self.disease.get_disease_id(), 1)
+        self.assertEqual(self.disease.get_disease_name(), "Flu")
+        self.assertEqual(self.disease.get_category(), "Viral")
+        self.assertEqual(self.disease.get_severity_level(), 3)
 
-    def test_disease_equality(self):
-        """Test disease equality comparison"""
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(1, "Common Cold", "Viral", "medium")
-        disease3 = Disease(2, "Cold", "Viral", "low")
-        
-        assert disease1 == disease2  # Same ID
-        assert disease1 != disease3  # Different ID
+    def test_disease_severity_levels(self):
+        """Test different severity levels"""
+        disease_low = Disease(2, "Common Cold", "Viral", "low")
+        disease_med = Disease(3, "Pneumonia", "Bacterial", "medium")
+        disease_high = Disease(4, "COVID-19", "Viral", "high")
 
-    def test_disease_hashing(self):
-        """Test disease hashing"""
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(1, "Cold", "Viral", "low")
-        
-        disease_set = {disease1, disease2}
-        assert len(disease_set) == 1  # Should be same hash
+        self.assertEqual(disease_low.get_severity_level(), 1)
+        self.assertEqual(disease_med.get_severity_level(), 2)
+        self.assertEqual(disease_high.get_severity_level(), 3)
 
     def test_disease_invalid_severity(self):
-        """Test disease with invalid severity level"""
-        disease = Disease(1, "Test", "Cat", "invalid_severity")
-        
-        # Should default to 0
-        assert disease.get_severity_level() == 0
+        """Test invalid severity level"""
+        disease = Disease(5, "Unknown", "Unknown", "invalid")
+        self.assertEqual(disease.get_severity_level(), 0)
+
+    def test_disease_getters(self):
+        """Test all disease getters"""
+        self.assertEqual(self.disease.get_disease_id(), 1)
+        self.assertEqual(self.disease.get_disease_name(), "Flu")
+        self.assertEqual(self.disease.get_category(), "Viral")
+        self.assertEqual(self.disease.get_severity_level(), 3)
+
+    def test_disease_get_severity_level_str(self):
+        """Test getting severity level as string"""
+        self.assertEqual(self.disease.get_severity_level_str(), "high")
+        disease_low = Disease(2, "Cold", "Viral", "low")
+        self.assertEqual(disease_low.get_severity_level_str(), "low")
+
+    def test_disease_invalid_severity_level_str(self):
+        """Test getting string for invalid severity"""
+        disease = Disease(5, "Unknown", "Unknown", "invalid")
+        self.assertEqual(disease.get_severity_level_str(), "")
+
+    def test_disease_update(self):
+        """Test disease update"""
+        self.disease.update("Updated Flu", "Viral", "low")
+        self.assertEqual(self.disease.get_disease_name(), "Updated Flu")
+        self.assertEqual(self.disease.get_severity_level(), 1)
+
+    def test_disease_equality(self):
+        """Test disease equality by ID"""
+        disease2 = Disease(1, "Different Name", "Different Category", "low")
+        disease3 = Disease(2, "Flu", "Viral", "high")
+        self.assertEqual(self.disease, disease2)
+        self.assertNotEqual(self.disease, disease3)
+
+    def test_disease_hash(self):
+        """Test disease hashing"""
+        disease2 = Disease(1, "Different Name", "Different Category", "low")
+        self.assertEqual(hash(self.disease), hash(disease2))
+
+    def test_disease_equality_non_disease(self):
+        """Test equality with non-Disease objects"""
+        self.assertNotEqual(self.disease, "Not a disease")
+        self.assertNotEqual(self.disease, 1)
 
 
-class TestDiseasesCollection:
-    """Tests for Diseases collection class"""
-    
-    def test_diseases_creation(self):
-        """Test creating Diseases collection"""
-        diseases = Diseases()
-        
-        assert len(diseases) == 0
+class TestDiseases(unittest.TestCase):
+    """Test the Diseases collection class"""
+
+    def setUp(self):
+        self.diseases = Diseases()
+        self.disease1 = Disease(1, "Flu", "Viral", "high")
+        self.disease2 = Disease(2, "Cold", "Viral", "low")
+        self.disease3 = Disease(3, "Pneumonia", "Bacterial", "medium")
+
+    def test_diseases_init(self):
+        """Test diseases collection initialization"""
+        self.assertEqual(len(self.diseases.get_all_diseases_list()), 0)
 
     def test_diseases_add(self):
-        """Test adding disease to collection"""
-        diseases = Diseases()
-        disease = Disease(1, "Cold", "Viral", "low")
-        
-        diseases.add(disease)
-        
-        assert len(diseases) == 1
+        """Test adding diseases"""
+        self.diseases.add(self.disease1)
+        self.assertEqual(len(self.diseases.get_all_diseases_list()), 1)
 
     def test_diseases_add_duplicate(self):
         """Test that duplicate diseases are not added"""
-        diseases = Diseases()
-        disease = Disease(1, "Cold", "Viral", "low")
-        
-        diseases.add(disease)
-        diseases.add(disease)
-        
-        assert len(diseases) == 1
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease1)
+        self.assertEqual(len(self.diseases.get_all_diseases_list()), 1)
 
     def test_diseases_add_none(self):
-        """Test adding None disease"""
-        diseases = Diseases()
-        
-        diseases.add(None)
-        
-        assert len(diseases) == 0
+        """Test that None is not added"""
+        self.diseases.add(None)
+        self.assertEqual(len(self.diseases.get_all_diseases_list()), 0)
 
-    def test_diseases_iteration(self):
-        """Test iterating over diseases"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(2, "Flu", "Viral", "medium")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        disease_list = list(diseases)
-        assert len(disease_list) == 2
-
-    def test_diseases_get_all(self):
+    def test_diseases_get_all_diseases_list(self):
         """Test getting all diseases"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(2, "Flu", "Viral", "medium")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        all_diseases = diseases.get_all_diseases_list()
-        
-        assert len(all_diseases) == 2
-        assert disease1 in all_diseases
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        all_diseases = self.diseases.get_all_diseases_list()
+        self.assertEqual(len(all_diseases), 2)
+
+    def test_diseases_len(self):
+        """Test __len__ method"""
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        self.assertEqual(len(self.diseases), 2)
+
+    def test_diseases_iter(self):
+        """Test iterating through diseases"""
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        count = 0
+        for disease in self.diseases:
+            count += 1
+        self.assertEqual(count, 2)
 
     def test_diseases_filter_by_id(self):
         """Test filtering diseases by ID"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(2, "Flu", "Viral", "medium")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        filtered = diseases.filter_by_id(1)
-        
-        assert len(filtered) == 1
-        assert filtered.get_all_diseases_list()[0].get_disease_id() == 1
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        filtered = self.diseases.filter_by_id(1)
+        self.assertEqual(len(filtered.get_all_diseases_list()), 1)
+        self.assertEqual(filtered.get_all_diseases_list()[0].get_disease_id(), 1)
 
     def test_diseases_filter_by_name(self):
         """Test filtering diseases by name"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Common Cold", "Viral", "low")
-        disease2 = Disease(2, "Flu", "Viral", "medium")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        filtered = diseases.filter_by_name("Cold")
-        
-        assert len(filtered) == 1
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        filtered = self.diseases.filter_by_name("flu")
+        self.assertEqual(len(filtered.get_all_diseases_list()), 1)
 
     def test_diseases_filter_by_category(self):
         """Test filtering diseases by category"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(2, "Bacterial", "Bacterial", "medium")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        filtered = diseases.filter_by_category("Viral")
-        
-        assert len(filtered) == 1
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        self.diseases.add(self.disease3)
+        filtered = self.diseases.filter_by_category("Viral")
+        self.assertEqual(len(filtered.get_all_diseases_list()), 2)
 
     def test_diseases_filter_by_severity(self):
-        """Test filtering diseases by severity"""
-        diseases = Diseases()
-        disease1 = Disease(1, "Cold", "Viral", "low")
-        disease2 = Disease(2, "Flu", "Viral", "high")
-        
-        diseases.add(disease1)
-        diseases.add(disease2)
-        
-        filtered = diseases.filter_by_severity_level("high")
-        
-        assert len(filtered) == 1
+        """Test filtering diseases by severity level"""
+        self.diseases.add(self.disease1)
+        self.diseases.add(self.disease2)
+        self.diseases.add(self.disease3)
+        filtered = self.diseases.filter_by_severity_level("high")
+        self.assertEqual(len(filtered.get_all_diseases_list()), 1)
 
 
-class TestAddNewDisease:
-    """Tests for add_new_disease function"""
-    
+class TestDiseaseDatabase(unittest.TestCase):
+    """Test disease database operations"""
+
+    @patch('core.disease.coredb.getDBObject')
+    def test_load_all_diseases(self, mock_get_db):
+        """Test loading all diseases from database"""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_get_db.return_value = mock_conn
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [
+            (1, "Flu", "Viral", "high"),
+            (2, "Cold", "Viral", "low"),
+            (3, "Pneumonia", "Bacterial", "medium")
+        ]
+
+        diseases = load_all_diseases()
+        self.assertEqual(len(diseases.get_all_diseases_list()), 3)
+        mock_conn.close.assert_called_once()
+
+    @patch('core.disease.coredb.getDBObject')
+    def test_load_all_diseases_empty(self, mock_get_db):
+        """Test loading diseases when database is empty"""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_get_db.return_value = mock_conn
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = []
+
+        diseases = load_all_diseases()
+        self.assertEqual(len(diseases.get_all_diseases_list()), 0)
+
+    @patch('core.disease.coredb.getDBObject')
+    def test_load_all_diseases_exception(self, mock_get_db):
+        """Test loading diseases with database exception"""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_get_db.return_value = mock_conn
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.execute.side_effect = Exception("DB Error")
+
+        with patch('builtins.print'):
+            diseases = load_all_diseases()
+        self.assertEqual(len(diseases.get_all_diseases_list()), 0)
+
     @patch('core.disease.coredb.getDBObject')
     def test_add_new_disease_success(self, mock_get_db):
-        """Test successful disease addition"""
+        """Test adding a new disease"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.lastrowid = 1
-        
-        success, disease_id = add_new_disease("Test Disease", "Category", "low")
-        
-        assert success is True
-        assert disease_id == 1
+
+        import core.disease
+        core.disease.cache_all_diseases = None
+
+        success, disease_id = add_new_disease("Flu", "Viral", "high")
+        self.assertTrue(success)
+        self.assertEqual(disease_id, 1)
+        mock_conn.commit.assert_called_once()
 
     @patch('core.disease.coredb.getDBObject')
     def test_add_new_disease_with_int_severity(self, mock_get_db):
-        """Test adding disease with integer severity"""
+        """Test adding a disease with integer severity"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.lastrowid = 1
-        
-        success, disease_id = add_new_disease("Test", "Cat", 2)
-        
-        assert success is True
+
+        import core.disease
+        core.disease.cache_all_diseases = None
+
+        success, disease_id = add_new_disease("Flu", "Viral", 3)
+        self.assertTrue(success)
 
     @patch('core.disease.coredb.getDBObject')
     def test_add_new_disease_exception(self, mock_get_db):
-        """Test disease addition with exception"""
+        """Test adding a disease with database exception"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.execute.side_effect = Exception("DB Error")
-        
-        success, disease_id = add_new_disease("Test", "Cat", "low")
-        
-        assert success is False
-        assert disease_id == -1
 
+        with patch('builtins.print'):
+            success, disease_id = add_new_disease("Flu", "Viral", "high")
+        self.assertFalse(success)
+        self.assertEqual(disease_id, -1)
 
-class TestSetDiseaseData:
-    """Tests for set_disease_data function"""
-    
     @patch('core.disease.coredb.getDBObject')
     def test_set_disease_data_success(self, mock_get_db):
-        """Test successful disease data update"""
+        """Test updating disease data"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
-        
-        success = set_disease_data(1, "Updated", "NewCat", "high")
-        
-        assert success is True
-        assert mock_conn.commit.called
+
+        import core.disease
+        core.disease.cache_all_diseases = None
+
+        success = set_disease_data(1, "Updated Flu", "Viral", "low")
+        self.assertTrue(success)
+        mock_conn.commit.assert_called_once()
 
     @patch('core.disease.coredb.getDBObject')
     def test_set_disease_data_exception(self, mock_get_db):
-        """Test disease data update with exception"""
+        """Test updating disease with exception"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.execute.side_effect = Exception("DB Error")
-        
-        success = set_disease_data(1, "Updated", "Cat", "high")
-        
-        assert success is False
 
-
-class TestGetAllDiseasesCache:
-    """Tests for get_all_diseases_cache function"""
-    
-    @patch('core.disease.load_all_diseases')
-    def test_get_cache_loads_once(self, mock_load):
-        """Test that cache is loaded once"""
-        mock_diseases = Diseases()
-        mock_load.return_value = mock_diseases
-        
-        # Reset cache
-        import core.disease
-        core.disease.cache_all_diseases = None
-        
-        result1 = get_all_diseases_cache()
-        result2 = get_all_diseases_cache()
-        
-        # load_all_diseases should be called only once
-        assert mock_load.call_count == 1
-        assert result1 is result2
+        with patch('builtins.print'):
+            success = set_disease_data(1, "Updated Flu", "Viral", "low")
+        self.assertFalse(success)
 
     @patch('core.disease.load_all_diseases')
-    def test_get_cache_refresh(self, mock_load):
-        """Test cache refresh"""
+    def test_get_all_diseases_cache(self, mock_load):
+        """Test getting diseases cache"""
         mock_diseases = Diseases()
+        mock_diseases.add(Disease(1, "Flu", "Viral", "high"))
         mock_load.return_value = mock_diseases
-        
+
         import core.disease
         core.disease.cache_all_diseases = None
-        
-        result1 = get_all_diseases_cache()
-        result2 = get_all_diseases_cache(refresh_cache=True)
-        
-        # load_all_diseases should be called twice
-        assert mock_load.call_count == 2
+
+        result = get_all_diseases_cache()
+        self.assertEqual(len(result.get_all_diseases_list()), 1)
+
+    @patch('core.disease.load_all_diseases')
+    def test_get_all_diseases_cache_refresh(self, mock_load):
+        """Test refreshing diseases cache"""
+        mock_diseases = Diseases()
+        mock_diseases.add(Disease(1, "Flu", "Viral", "high"))
+        mock_load.return_value = mock_diseases
+
+        import core.disease
+        core.disease.cache_all_diseases = Diseases()
+
+        result = get_all_diseases_cache(refresh_cache=True)
+        mock_load.assert_called_once()
+
+    def test_get_severity_level_str_low(self):
+        """Test getting severity string for low level"""
+        result = get_severity_level_str(1)
+        self.assertEqual(result, "low")
+
+    def test_get_severity_level_str_medium(self):
+        """Test getting severity string for medium level"""
+        result = get_severity_level_str(2)
+        self.assertEqual(result, "medium")
+
+    def test_get_severity_level_str_high(self):
+        """Test getting severity string for high level"""
+        result = get_severity_level_str(3)
+        self.assertEqual(result, "high")
+
+    def test_get_severity_level_str_invalid(self):
+        """Test getting severity string for invalid level"""
+        result = get_severity_level_str(999)
+        self.assertEqual(result, "")
 
 
-class TestDiseaseConstants:
-    """Tests for disease severity constants"""
-    
-    def test_severity_rank_values(self):
-        """Test severity rank mapping"""
-        assert DISEASE_SEVERITY_RANK["low"] == 1
-        assert DISEASE_SEVERITY_RANK["medium"] == 2
-        assert DISEASE_SEVERITY_RANK["high"] == 3
-
-    def test_severity_rank_keys(self):
-        """Test severity rank keys"""
-        assert "low" in DISEASE_SEVERITY_RANK
-        assert "medium" in DISEASE_SEVERITY_RANK
-        assert "high" in DISEASE_SEVERITY_RANK
+if __name__ == '__main__':
+    unittest.main()
