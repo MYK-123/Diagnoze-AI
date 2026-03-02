@@ -1,13 +1,11 @@
 from datetime import datetime
 import secrets
 import json
+import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from ..auth_db import get_current_user
-from ..database import get_db
+from ..database import get_db, Database
 from ..db_models import ChatHistory, ChatMessage as DBChatMessage, ChatSession
 from ..models.schemas import ChatMessage, PredictionRequest, SaveChatSessionRequest
 from ..models.responses import success_response, chat_response
@@ -27,18 +25,19 @@ EMERGENCY_KEYWORDS = [
 ]
 
 @router.post("/start-session", summary="Start new chat session")
-async def start_chat_session(user: dict[str, Any] = Depends(get_current_user), db: Session = Depends(get_db)):
+async def start_chat_session(user: dict[str, Any] = Depends(get_current_user), conn: sqlite3.Connection = Depends(get_db)):
     """Start a new chat session"""
+    db = Database(conn)
     session_id = f"session_{secrets.token_hex(8)}"
-    sess = ChatSession(
-        id=session_id,
-        user_id=user["id"],
-        created_at=datetime.now(),
-        last_activity=datetime.now(),
-        state="welcome",
-        symptoms_json="[]",
+    now = datetime.now().isoformat()
+    
+    db.execute(
+        """
+        INSERT INTO chat_sessions (id, user_id, created_at, last_activity, state, symptoms_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (session_id, user["id"], now, now, "welcome", "[]")
     )
-    db.add(sess)
     db.commit()
 
     return success_response({
@@ -50,25 +49,44 @@ async def start_chat_session(user: dict[str, Any] = Depends(get_current_user), d
 async def send_chat_message(
     chat_data: ChatMessage,
     user: dict[str, Any] = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    conn: sqlite3.Connection = Depends(get_db),
 ):
     """Send message in chat session"""
-    sess = db.get(ChatSession, chat_data.session_id)
-    if not sess:
+    db = Database(conn)
+    
+    sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (chat_data.session_id,))
+    if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
+    
+    sess = ChatSession.from_db_row(sess_row)
+    
     if sess.user_id != user["id"]:
         raise HTTPException(status_code=403, detail="Access denied")
 
-    sess.last_activity = datetime.now()
+    now = datetime.now().isoformat()
+    db.execute(
+        "UPDATE chat_sessions SET last_activity = ? WHERE id = ?",
+        (now, sess.id)
+    )
 
     # Add user message
-    db.add(DBChatMessage(session_id=sess.id, role="user", content=chat_data.message, timestamp=datetime.now()))
+    db.execute(
+        """
+        INSERT INTO chat_messages (session_id, role, content, timestamp)
+        VALUES (?, ?, ?, ?)
+        """,
+        (sess.id, "user", chat_data.message, now)
+    )
 
     # Add symptoms if provided
     if chat_data.symptoms:
         current = sess.symptoms()
         current.extend(chat_data.symptoms)
         sess.set_symptoms(current)
+        db.execute(
+            "UPDATE chat_sessions SET symptoms_json = ? WHERE id = ?",
+            (sess.symptoms_json, sess.id)
+        )
 
     # Generate AI response using core prediction engine
     session_view: dict[str, Any] = {"state": sess.state, "symptoms": sess.symptoms()}
@@ -77,20 +95,26 @@ async def send_chat_message(
 
     # Persist assistant message with extra data payload
     extra: dict[str, Any] = {k: v for k, v in response.items() if k != "response"}
-    db.add(
-        DBChatMessage(
-            session_id=sess.id,
-            role="assistant",
-            content=response_data.get("response", ""),
-            timestamp=datetime.now(),
-            data_json=json.dumps(extra, ensure_ascii=False),
+    db.execute(
+        """
+        INSERT INTO chat_messages (session_id, role, content, timestamp, data_json)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            sess.id,
+            "assistant",
+            response_data.get("response", ""),
+            now,
+            json.dumps(extra, ensure_ascii=False) if extra else None
         )
     )
 
     if response_data.get("next_state"):
-        sess.state = response_data["next_state"]
+        db.execute(
+            "UPDATE chat_sessions SET state = ? WHERE id = ?",
+            (response_data["next_state"], sess.id)
+        )
 
-    db.add(sess)
     db.commit()
 
     return response
@@ -250,12 +274,17 @@ async def generate_prediction(
 async def save_chat_session(
     payload: SaveChatSessionRequest,
     user: dict[str, Any] = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    conn: sqlite3.Connection = Depends(get_db),
 ):
     """Save chat session to history"""
-    sess = db.get(ChatSession, payload.session_id)
-    if not sess:
+    db = Database(conn)
+    
+    sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (payload.session_id,))
+    if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
+    
+    sess = ChatSession.from_db_row(sess_row)
+    
     if sess.user_id != user["id"]:
         raise HTTPException(status_code=403, detail="Access denied")
 
@@ -267,15 +296,23 @@ async def save_chat_session(
             title += f" and {len(symptoms)-3} more"
 
     # Load messages
-    msgs = db.scalars(select(DBChatMessage).where(DBChatMessage.session_id == sess.id).order_by(DBChatMessage.id.asc())).all()
-    messages_list: list[dict[str, Any]] = [m.to_dict() for m in msgs]
+    msgs_rows = db.fetch_all(
+        """
+        SELECT * FROM chat_messages WHERE session_id = ?
+        ORDER BY id ASC
+        """,
+        (sess.id,)
+    )
+    
+    messages_list: list[dict[str, Any]] = [DBChatMessage.from_db_row(row).to_dict() for row in msgs_rows]
 
     # Extract predictions from assistant messages if present
     predictions: list[Any] = []
-    for m in reversed(msgs):
-        if m.role == "assistant" and m.data_json:
+    for msg_row in reversed(msgs_rows):
+        msg = DBChatMessage.from_db_row(msg_row)
+        if msg.role == "assistant" and msg.data_json:
             try:
-                data: Any = json.loads(m.data_json)
+                data: Any = json.loads(msg.data_json)
                 if isinstance(data, dict):
                     inner: Any = data.get("data", data)
                     if isinstance(inner, dict) and inner.get("predictions"):
@@ -285,55 +322,80 @@ async def save_chat_session(
                 continue
 
     chat_id = f"chat_{secrets.token_hex(8)}"
-    history = ChatHistory(
-        id=chat_id,
-        user_id=user["id"],
-        title=title,
-        created_at=sess.created_at,
-        ended_at=datetime.now(),
-        duration="N/A",
-        symptoms_json=json.dumps(symptoms, ensure_ascii=False),
-        predictions_json=json.dumps(predictions or [], ensure_ascii=False),
-        messages_json=json.dumps(messages_list, ensure_ascii=False),
+    now = datetime.now().isoformat()
+    
+    db.execute(
+        """
+        INSERT INTO chat_history (
+            id, user_id, title, created_at, ended_at, duration,
+            symptoms_json, predictions_json, messages_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            chat_id, user["id"], title, sess.created_at, now, "N/A",
+            json.dumps(symptoms, ensure_ascii=False),
+            json.dumps(predictions or [], ensure_ascii=False),
+            json.dumps(messages_list, ensure_ascii=False)
+        )
     )
-    db.add(history)
 
     # Remove active session and messages
-    db.delete(sess)
+    db.execute("DELETE FROM chat_messages WHERE session_id = ?", (sess.id,))
+    db.execute("DELETE FROM chat_sessions WHERE id = ?", (sess.id,))
     db.commit()
 
     return success_response({"chat_id": chat_id, "title": title, "message": "Chat saved successfully"})
 
 @router.get("/session/{session_id}", summary="Get chat session")
-async def get_chat_session(session_id: str, user: dict[str, Any] = Depends(get_current_user), db: Session = Depends(get_db)):
+async def get_chat_session(session_id: str, user: dict[str, Any] = Depends(get_current_user), conn: sqlite3.Connection = Depends(get_db)):
     """Get chat session by ID"""
-    sess = db.get(ChatSession, session_id)
-    if not sess:
+    db = Database(conn)
+    
+    sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (session_id,))
+    if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
+    
+    sess = ChatSession.from_db_row(sess_row)
+    
     if sess.user_id != user["id"] and user.get("account_type") != "admin":
         raise HTTPException(status_code=403, detail="Access denied")
-    msgs = db.scalars(select(DBChatMessage).where(DBChatMessage.session_id == sess.id).order_by(DBChatMessage.id.asc())).all()
+    
+    msgs_rows = db.fetch_all(
+        """
+        SELECT * FROM chat_messages WHERE session_id = ?
+        ORDER BY id ASC
+        """,
+        (sess.id,)
+    )
+    
     return success_response(
         {
             "id": sess.id,
             "user_id": sess.user_id,
-            "created_at": sess.created_at.isoformat(),
-            "last_activity": sess.last_activity.isoformat(),
+            "created_at": sess.created_at,
+            "last_activity": sess.last_activity,
             "state": sess.state,
             "symptoms": sess.symptoms(),
-            "messages": [m.to_dict() for m in msgs],
+            "messages": [DBChatMessage.from_db_row(row).to_dict() for row in msgs_rows],
         }
     )
 
 @router.delete("/session/{session_id}", summary="Delete chat session")
-async def delete_chat_session(session_id: str, user: dict[str, Any] = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_chat_session(session_id: str, user: dict[str, Any] = Depends(get_current_user), conn: sqlite3.Connection = Depends(get_db)):
     """Delete chat session"""
-    sess = db.get(ChatSession, session_id)
-    if not sess:
+    db = Database(conn)
+    
+    sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (session_id,))
+    if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
+    
+    sess = ChatSession.from_db_row(sess_row)
+    
     if sess.user_id != user["id"] and user.get("account_type") != "admin":
         raise HTTPException(status_code=403, detail="Access denied")
-    db.delete(sess)
+    
+    db.execute("DELETE FROM chat_sessions WHERE id = ?", (sess.id,))
     db.commit()
+    
     return success_response(message="Chat session deleted")
 

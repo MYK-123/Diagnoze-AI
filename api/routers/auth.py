@@ -1,13 +1,12 @@
 from datetime import datetime
 import secrets
+import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from ..auth_db import create_session, hash_password, verify_password
-from ..database import get_db
+from ..database import get_db, Database
 from ..db_models import SessionToken, User
 from ..models.schemas import LoginRequest, RegisterRequest
 from ..models.responses import success_response, login_response
@@ -16,17 +15,31 @@ router = APIRouter()
 security = HTTPBearer()
 
 @router.post("/login", summary="User login")
-async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+async def login(login_data: LoginRequest, conn: sqlite3.Connection = Depends(get_db)):
     """Authenticate user and return token"""
-    user = db.scalar(select(User).where(User.email == str(login_data.email)))
-    if not user or not user.is_active or not verify_password(login_data.password, user.password_hash):
+    db = Database(conn)
+    
+    user_row = db.fetch_one(
+        "SELECT * FROM users WHERE email = ?",
+        (str(login_data.email),)
+    )
+    
+    if not user_row:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    user = User.from_db_row(user_row)
+    
+    if not user.is_active or not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    user.last_login = datetime.utcnow()
-    db.add(user)
+    user.last_login = datetime.utcnow().isoformat()
+    db.execute(
+        "UPDATE users SET last_login = ? WHERE id = ?",
+        (user.last_login, user.id)
+    )
     db.commit()
 
-    session = create_session(db, user, minutes=30)
+    session = create_session(conn, user, minutes=30)
 
     return login_response(session.token, {
         "id": user.id,
@@ -39,14 +52,46 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     })
 
 @router.post("/register", summary="User registration")
-async def register(register_data: RegisterRequest, db: Session = Depends(get_db)):
+async def register(register_data: RegisterRequest, conn: sqlite3.Connection = Depends(get_db)):
     """Register new user"""
-    existing = db.scalar(select(User).where(User.email == str(register_data.email)))
+    db = Database(conn)
+    
+    existing = db.fetch_one(
+        "SELECT * FROM users WHERE email = ?",
+        (str(register_data.email),)
+    )
+    
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 
+    user_id = f"user_{secrets.token_hex(8)}"
+    now = datetime.utcnow().isoformat()
+    
+    db.execute(
+        """
+        INSERT INTO users (
+            id, email, password_hash, first_name, last_name,
+            age, gender, account_type, created_at, last_login, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            str(register_data.email),
+            hash_password(register_data.password),
+            register_data.first_name,
+            register_data.last_name,
+            register_data.age,
+            register_data.gender,
+            register_data.account_type,
+            now,
+            now,
+            True,
+        )
+    )
+    db.commit()
+
     user = User(
-        id=f"user_{secrets.token_hex(8)}",
+        id=user_id,
         email=str(register_data.email),
         password_hash=hash_password(register_data.password),
         first_name=register_data.first_name,
@@ -54,16 +99,12 @@ async def register(register_data: RegisterRequest, db: Session = Depends(get_db)
         age=register_data.age,
         gender=register_data.gender,
         account_type=register_data.account_type,
-        created_at=datetime.utcnow(),
-        last_login=datetime.utcnow(),
-        preferences_json="{}",
+        created_at=now,
+        last_login=now,
         is_active=True,
     )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
 
-    session = create_session(db, user, minutes=30)
+    session = create_session(conn, user, minutes=30)
 
     return login_response(session.token, {
         "id": user.id,
@@ -76,33 +117,41 @@ async def register(register_data: RegisterRequest, db: Session = Depends(get_db)
     })
 
 @router.post("/logout", summary="User logout")
-async def logout(token: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+async def logout(token: HTTPAuthorizationCredentials = Depends(security), conn: sqlite3.Connection = Depends(get_db)):
     """Invalidate user session"""
     credentials = token.credentials
-    session = db.get(SessionToken, credentials)
-    if session:
-        db.delete(session)
-        db.commit()
+    db = Database(conn)
+    
+    db.execute("DELETE FROM sessions WHERE token = ?", (credentials,))
+    db.commit()
+    
     return success_response(message="Logout successful")
 
 @router.post("/refresh", summary="Refresh token")
-async def refresh_token(token: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+async def refresh_token(token: HTTPAuthorizationCredentials = Depends(security), conn: sqlite3.Connection = Depends(get_db)):
     """Refresh authentication token"""
-    old = db.get(SessionToken, token.credentials)
-    if not old:
+    db = Database(conn)
+    
+    old_row = db.fetch_one("SELECT * FROM sessions WHERE token = ?", (token.credentials,))
+    if not old_row:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user = db.get(User, old.user_id)
-    if not user:
+    
+    old_session = SessionToken.from_db_row(old_row)
+    
+    user_row = db.fetch_one("SELECT * FROM users WHERE id = ?", (old_session.user_id,))
+    if not user_row:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
-    db.delete(old)
+    db.execute("DELETE FROM sessions WHERE token = ?", (token.credentials,))
     db.commit()
 
-    new_session = create_session(db, user, minutes=30)
+    user = User.from_db_row(user_row)
+    new_session = create_session(conn, user, minutes=30)
+    
     return success_response({
         "access_token": new_session.token,
         "token_type": "bearer",
-        "expires_at": new_session.expires_at.isoformat(),
+        "expires_at": new_session.expires_at,
     })
 
 @router.post("/forgot-password", summary="Request password reset")

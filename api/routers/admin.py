@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from ..auth_db import get_current_admin
-from ..database import get_db
+from ..database import get_db, Database
 from ..db_models import ChatHistory, User
 from ..models.responses import success_response, list_response
 
@@ -19,11 +18,13 @@ async def get_all_users(
     limit: int = Query(20, ge=1, le=100),
     search: Optional[str] = Query(None),
     account_type: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
+    conn: sqlite3.Connection = Depends(get_db),
 ):
     """Get list of all users (admin only)"""
-    q = select(User)
-    users_list = db.scalars(q).all()
+    db = Database(conn)
+    
+    users_rows = db.fetch_all("SELECT * FROM users")
+    users_list = [User.from_db_row(row) for row in users_rows]
 
     filtered = users_list
     if search:
@@ -38,7 +39,7 @@ async def get_all_users(
     if account_type:
         filtered = [u for u in filtered if u.account_type == account_type]
 
-    filtered.sort(key=lambda u: u.created_at or datetime.min, reverse=True)
+    filtered.sort(key=lambda u: u.created_at or "", reverse=True)
     total = len(filtered)
     start = (page - 1) * limit
     end = start + limit
@@ -51,50 +52,68 @@ async def update_user(
     user_id: str,
     update_data: dict,
     admin: dict = Depends(get_current_admin),
-    db: Session = Depends(get_db),
+    conn: sqlite3.Connection = Depends(get_db),
 ):
     """Update user information (admin only)"""
-    user = db.get(User, user_id)
-    if not user:
+    db = Database(conn)
+    
+    user_row = db.fetch_one("SELECT * FROM users WHERE id = ?", (user_id,))
+    if not user_row:
         raise HTTPException(status_code=404, detail="User not found")
 
+    user = User.from_db_row(user_row)
+    
     for key, value in (update_data or {}).items():
         if value is None:
             continue
         if hasattr(user, key):
             setattr(user, key, value)
 
-    db.add(user)
+    # Update only allowed fields
+    db.execute(
+        """
+        UPDATE users SET first_name=?, last_name=?, age=?, gender=?, phone=?, is_active=?, account_type=?
+        WHERE id=?
+        """,
+        (user.first_name, user.last_name, user.age, user.gender, user.phone, user.is_active, user.account_type, user.id)
+    )
     db.commit()
-    db.refresh(user)
+    
     return success_response(user.to_public_dict(), "User updated successfully")
 
 @router.delete("/users/{user_id}", summary="Delete user")
-async def delete_user(user_id: str, admin: dict = Depends(get_current_admin), db: Session = Depends(get_db)):
+async def delete_user(user_id: str, admin: dict = Depends(get_current_admin), conn: sqlite3.Connection = Depends(get_db)):
     """Delete user (admin only)"""
+    db = Database(conn)
+    
     # Don't allow self-deletion
     if user_id == admin["id"]:
         raise HTTPException(status_code=400, detail="Cannot delete your own account")
 
-    user = db.get(User, user_id)
-    if not user:
+    user_row = db.fetch_one("SELECT * FROM users WHERE id = ?", (user_id,))
+    if not user_row:
         raise HTTPException(status_code=404, detail="User not found")
-    db.delete(user)
+    
+    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
     db.commit()
+    
     return success_response(message="User deleted successfully")
 
 @router.get("/analytics", summary="Get system analytics")
-async def get_analytics(admin: dict = Depends(get_current_admin), db: Session = Depends(get_db)):
+async def get_analytics(admin: dict = Depends(get_current_admin), conn: sqlite3.Connection = Depends(get_db)):
     """Get system analytics (admin only)"""
-    users = db.scalars(select(User)).all()
-    total_users = len(users)
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    active_users = len([u for u in users if u.last_login and u.last_login > week_ago])
+    db = Database(conn)
+    
+    total_users = db.fetch_scalar("SELECT COUNT(*) FROM users") or 0
+    
+    week_ago = (datetime.utcnow() - timedelta(days=7)).isoformat()
+    users_rows = db.fetch_all("SELECT * FROM users")
+    active_users = len([u for u in users_rows if u.get("last_login") and u["last_login"] > week_ago])
 
-    chats = db.scalars(select(ChatHistory)).all()
-    total_chats = len(chats)
-    today = datetime.utcnow().date()
-    chats_today = len([c for c in chats if c.created_at and c.created_at.date() == today])
+    total_chats = db.fetch_scalar("SELECT COUNT(*) FROM chat_history") or 0
+    today = datetime.utcnow().date().isoformat()
+    chats_rows = db.fetch_all("SELECT * FROM chat_history")
+    chats_today = len([c for c in chats_rows if c.get("created_at") and c["created_at"].startswith(today)])
     
     # Common symptoms (dummy data)
     common_symptoms = [
@@ -146,6 +165,6 @@ async def get_logs(
 ):
     """Get system logs (admin only)"""
     # Logs are not persisted yet in SQLite for this demo.
-    items: list[dict] = []
+    items = []
     return list_response(items=items, total=0, page=page, limit=limit)
 
