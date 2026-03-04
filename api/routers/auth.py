@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ..auth_db import create_session, hash_password, verify_password
-from ..database import get_db, Database
+from db.core import get_db
+from ..database import Database
 from ..db_models import SessionToken, User
 from ..models.schemas import LoginRequest, RegisterRequest
 from ..models.responses import success_response, login_response

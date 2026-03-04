@@ -5,7 +5,8 @@ import sqlite3
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ..auth_db import get_current_admin
-from ..database import get_db, Database
+from db.core import get_db
+from ..database import Database
 from ..db_models import ChatHistory, User
 from ..models.responses import success_response, list_response
 

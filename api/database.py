@@ -1,28 +1,29 @@
 import sqlite3
 import json
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator, Optional, Any, List, Tuple
+import db.core
 
-# Store DB file inside `api/` folder
-DB_PATH = Path(__file__).resolve().parent / "diagnoze.sqlite3"
-DATABASE_URL = f"sqlite:///{DB_PATH.as_posix()}"
+# # Store DB file inside `api/` folder
+# DB_PATH = Path(__file__).resolve().parent.parent / "database/diagnoze.sqlite3"
+# DATABASE_URL = f"sqlite:///{DB_PATH.as_posix()}"
 
-def get_connection() -> sqlite3.Connection:
-    """Get a new database connection"""
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key constraints
-    return conn
+# def get_connection() -> sqlite3.Connection:
+#     """Get a new database connection"""
+#     conn = sqlite3.connect(str(DB_PATH))
+#     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+#     conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key constraints
+#     return conn
 
-@contextmanager
-def get_db() -> Generator[sqlite3.Connection, None, None]:
-    """Context manager for database connections"""
-    conn = get_connection()
-    try:
-        yield conn
-    finally:
-        conn.close()
+# @contextmanager
+# def get_db() -> Generator[sqlite3.Connection, None, None]:
+#     """Context manager for database connections"""
+#     conn = get_connection()
+#     try:
+#         yield conn
+#     finally:
+#         conn.close()
+
 
 class Database:
     """Database operations wrapper"""
@@ -70,8 +71,8 @@ class Database:
         self.conn.rollback()
 
 def init_db() -> None:
-    """Initialize database schema"""
-    conn = get_connection()
+    """Initialize database schema"""    
+    conn = db.core.get_connection()
     cursor = conn.cursor()
     
     # Create users table

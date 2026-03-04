@@ -4,8 +4,10 @@ from datetime import datetime, timedelta
 from collections import Counter
 import sqlite3
 
+from db.core import get_db
+
 from ..auth_db import get_current_user
-from ..database import get_db, Database
+from ..database import Database
 from ..db_models import ChatHistory, User
 from ..models.responses import success_response, list_response
 from ..models.schemas import UserUpdate

@@ -4,7 +4,8 @@ from datetime import datetime
 import uvicorn
 import sqlite3
 
-from .database import init_db, get_db, Database
+from db.core import get_db
+from .database import init_db, Database
 from .auth_db import get_current_user
 from .db_models import User, ChatHistory
 

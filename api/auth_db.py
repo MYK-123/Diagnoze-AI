@@ -10,7 +10,8 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from .database import get_db, Database
+from db.core import get_db
+from .database import Database
 from .db_models import SessionToken, User
 
 security = HTTPBearer()
@@ -45,7 +46,7 @@ def create_session(conn: sqlite3.Connection, user: User, minutes: int = 30) -> S
     
     db.execute(
         """
-        INSERT INTO sessions (token, user_id, created_at, expires_at)
+        INSERT INTO user_session (token, user_id, created_at, expires_at)
         VALUES (?, ?, ?, ?)
         """,
         (token, user.id, now.isoformat(), expires_at)
@@ -71,7 +72,7 @@ async def get_current_user(
     print(f"RECEIVED TOKEN: {token}")  # DEBUG
     
     # Get session
-    session_row = db.fetch_one("SELECT * FROM sessions WHERE token = ?", (token,))
+    session_row = db.fetch_one("SELECT * FROM user_session WHERE token = ?", (token,))
     print(f"DB SESSION LOOKUP: {session_row}")  # DEBUG
     
     if not session_row:
@@ -80,8 +81,8 @@ async def get_current_user(
     session = SessionToken.from_db_row(session_row)
     
     # Check expiration
-    if datetime.fromisoformat(session.expires_at) < datetime.utcnow():
-        db.execute("DELETE FROM sessions WHERE token = ?", (token,))
+    if  session.expires_at is not None and datetime.fromisoformat(session.expires_at) < datetime.utcnow():
+        db.execute("DELETE FROM user_session WHERE token = ?", (token,))
         db.commit()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired")
     

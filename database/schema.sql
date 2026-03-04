@@ -4,18 +4,26 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS "users" (
 	"user_id"	INTEGER,
 	"username"	TEXT UNIQUE NOT NULL,
-	"email"	TEXT,
-	"password"	TEXT,
-	"role"	TEXT DEFAULT 'user',
-	"created_at"	NUMERIC DEFAULT CURRENT_TIMESTAMP,
+	"email"	TEXT UNIQUE NOT NULL,
+	"password_hash"	TEXT NOT NULL,
+	"first_name" TEXT NOT NULL,
+    "last_name" TEXT NOT NULL,
+    "age" INTEGER NOT NULL DEFAULT 18,
+    "gender" TEXT NOT NULL DEFAULT 'prefer_not_to_say',
+    "phone" TEXT,
+    "preferences_json" TEXT NOT NULL DEFAULT '{}',
+    "last_login" TIMESTAMP,
+    "is_active" BOOLEAN NOT NULL DEFAULT 1,
+	"role" TEXT NOT NULL DEFAULT 'user',
+	"created_at"TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY("user_id" AUTOINCREMENT) ON CONFLICT ROLLBACK,
 	CHECK("role" = 'admin' OR "role" = 'user' OR "role" = 'medical_student')
 );
 CREATE TABLE IF NOT EXISTS "user_session" (
-	"session_id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"token"	TEXT PRIMARY KEY NOT NULL,
 	"user_id"	INTEGER NOT NULL,
-	"token"	TEXT UNIQUE NOT NULL,
-	"expires_at"	INTEGER,
+	"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	"expires_at"	INTEGER NOT NULL,
 	FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "logs" (
@@ -84,4 +92,44 @@ CREATE TABLE IF NOT EXISTS "educational_content" (
 	PRIMARY KEY("content_id" AUTOINCREMENT),
 	FOREIGN KEY("disease_id") REFERENCES "disease"("disease_id") ON DELETE CASCADE
 );
+
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS chat_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        state TEXT NOT NULL DEFAULT 'welcome',
+        symptoms_json TEXT NOT NULL DEFAULT '[]',
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL,
+        timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        data_json TEXT,
+        FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
+    );
+
+
+CREATE TABLE IF NOT EXISTS chat_history (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        ended_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        duration TEXT NOT NULL DEFAULT 'N/A',
+        symptoms_json TEXT NOT NULL DEFAULT '[]',
+        predictions_json TEXT NOT NULL DEFAULT '[]',
+        messages_json TEXT NOT NULL DEFAULT '[]',
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
 COMMIT;

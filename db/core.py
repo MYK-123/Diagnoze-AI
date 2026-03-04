@@ -1,14 +1,23 @@
 #!/bin/env python3
 
 import os
+import json
 import sqlite3
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Generator, Optional, Any, List, Tuple
+
+# Store DB file inside `database/` folder
+DB_PATH = Path(__file__).resolve().parent.parent / "database/diagnoze.sqlite3"
+DATABASE_URL = f"sqlite:///{DB_PATH.as_posix()}"
+
 
 def getDBPath():
     """
     @returns the relative path of database file.
     """
 
-    return ".\\database\\db.db"
+    return ".\\database\\diagnoze.sqlite3"
 
 def getSchemaPath():
     """
@@ -62,8 +71,28 @@ def getDBPathAbs():
     return os.path.abspath(getDBPath())
 
 
-def getDBObject(db:str | None = None):
-    return sqlite3.connect(db if db is not None else getDBPath())
+def getDBObject(db:str | None = None) -> sqlite3.Connection:
+    conn = sqlite3.connect(db if db is not None else getDBPath())
+    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+    conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key constraints
+    return conn
+    
+
+def get_connection(db:str | None = None) -> sqlite3.Connection:
+    """Get a new database connection Same as getgetDBObject("db path")"""
+    return getDBObject(db=db)
+
+
+@contextmanager
+def get_db() -> Generator[sqlite3.Connection, None, None]:
+    """Context manager for database connections"""
+    conn = get_connection()
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
 
 def read_file_and_execute(file: str, conn: sqlite3.Connection) -> sqlite3.Cursor:
     with open(file) as f_obj:
