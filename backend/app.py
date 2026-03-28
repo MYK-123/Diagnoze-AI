@@ -146,8 +146,9 @@ def safety(router: StreamlitRouter):
 
 @router.map("/public")
 def public(router: StreamlitRouter):
-    from pages.public import render_public_page
-    render_public_page()
+    # from pages.public import render_public_page
+    # render_public_page()
+    pass
 
 # Error pages
 @router.map("/404")

@@ -72,7 +72,7 @@ def getDBPathAbs():
 
 
 def getDBObject(db:str | None = None) -> sqlite3.Connection:
-    conn = sqlite3.connect(db if db is not None else getDBPath())
+    conn = sqlite3.connect(db if db is not None else getDBPath(), check_same_thread=False)
     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
     conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key constraints
     return conn
@@ -83,12 +83,13 @@ def get_connection(db:str | None = None) -> sqlite3.Connection:
     return getDBObject(db=db)
 
 
-@contextmanager
 def get_db() -> Generator[sqlite3.Connection, None, None]:
     """Context manager for database connections"""
     conn = get_connection()
     try:
         yield conn
+    except:
+        raise
     finally:
         conn.close()
 
@@ -101,9 +102,17 @@ def read_file_and_execute(file: str, conn: sqlite3.Connection) -> sqlite3.Cursor
 
 def db_initialize():
     conn = getDBObject()
-    read_file_and_execute(getSchemaPath(), conn)
-    conn.commit()
-    conn.close()
+    res = False
+    try:
+        read_file_and_execute(getSchemaPath(), conn)
+        conn.commit()
+        res = True
+    except Exception:
+        conn.rollback()
+        res = False
+    finally:
+        conn.close()
+    return res
 
 def populate_default_values():
     conn = getDBObject()

@@ -2,6 +2,7 @@ from datetime import datetime
 import secrets
 import json
 import sqlite3
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from ..auth_db import get_current_user
@@ -17,6 +18,7 @@ from core.core import get_top_k_diseases_from_prediction_with_probablities
 from core.symptoms import get_all_symptoms_cache
 
 router = APIRouter()
+logger = logging.getLogger("diagnoze.chat")
 
 # Emergency keywords for safety check
 EMERGENCY_KEYWORDS = [
@@ -31,13 +33,15 @@ async def start_chat_session(user: dict[str, Any] = Depends(get_current_user), c
     db = Database(conn)
     session_id = f"session_{secrets.token_hex(8)}"
     now = datetime.now().isoformat()
-    
+    # Normalize user id
+    uid = user.get("user_id") if user.get("user_id") is not None else user.get("id")
+    logger.info("Starting chat session for user dict=%s normalized_user_id=%s", user, uid)
     db.execute(
         """
         INSERT INTO chat_sessions (id, user_id, created_at, last_activity, state, symptoms_json)
         VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (session_id, user["id"], now, now, "welcome", "[]")
+        (session_id, uid, now, now, "welcome", "[]")
     )
     db.commit()
 
@@ -54,14 +58,20 @@ async def send_chat_message(
 ):
     """Send message in chat session"""
     db = Database(conn)
+    # Normalize user id
+    uid = user.get("user_id") if user.get("user_id") is not None else user.get("id")
+    logger.info("Authenticated user dict=%s normalized_user_id=%s", user, uid)
     
     sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (chat_data.session_id,))
+    logger.info("Chat session lookup result: %s", sess_row)
     if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
     
     sess = ChatSession.from_db_row(sess_row)
-    
-    if sess.user_id != user["id"]:
+    logger.info("Comparing session.user_id=%s (%s) with token user_id=%s (%s)", sess.user_id, type(sess.user_id), uid, type(uid))
+    # Compare as strings to avoid mismatches between int and str stored in DB
+    if str(sess.user_id) != str(uid):
+        logger.warning("Access denied: session belongs to %s but token user is %s", sess.user_id, uid)
         raise HTTPException(status_code=403, detail="Access denied")
 
     now = datetime.now().isoformat()
@@ -88,11 +98,16 @@ async def send_chat_message(
             "UPDATE chat_sessions SET symptoms_json = ? WHERE id = ?",
             (sess.symptoms_json, sess.id)
         )
+    
+    logger.debug("DEBUG: send Message 3: %s", chat_data.message)
+    logger.debug("DEBUG: send Message 3 Sympt: %s", chat_data.symptoms)
 
     # Generate AI response using core prediction engine
     session_view: dict[str, Any] = {"state": sess.state, "symptoms": sess.symptoms()}
     response: dict[str, Any] = generate_ai_response(chat_data.message, session_view)
     response_data: dict[str, Any] = response.get("data", {})
+
+    logger.debug("DEBUG: send Message 4: %s", chat_data.message)
 
     # Persist assistant message with extra data payload
     extra: dict[str, Any] = {k: v for k, v in response.items() if k != "response"}
@@ -110,6 +125,8 @@ async def send_chat_message(
         )
     )
 
+    logger.debug("DEBUG: send Message 5: %s", chat_data.message)
+
     if response_data.get("next_state"):
         db.execute(
             "UPDATE chat_sessions SET state = ? WHERE id = ?",
@@ -117,6 +134,8 @@ async def send_chat_message(
         )
 
     db.commit()
+
+    logger.debug("DEBUG: send Message 6: %s", chat_data.message)
 
     return response
 
@@ -142,60 +161,81 @@ def generate_ai_response(user_input: str, session: dict[str, Any]) -> dict[str, 
                 }
             )
     
-    # Extract symptoms from user input
     try:
         symptoms_cache = get_all_symptoms_cache()
         all_symptoms_list = symptoms_cache.get_all_list()
-        
-        # Find matching symptoms in user input
+        logger.debug("INFO: all symptoms count: %s", symptoms_cache.size())
+        logger.debug("INFO: all symptoms count: %s", len(all_symptoms_list))
+
         new_symptoms: list[str] = []
         for symptom in all_symptoms_list:
             symptom_name = symptom.get_name().lower()
             if symptom_name in input_lower or input_lower in symptom_name:
+                logger.debug("INFO: Adding symptom: %s, with actual: %s", symptom_name, symptom.get_name())
                 new_symptoms.append(symptom.get_name())
         
-        # Add new symptoms to collected list
         if new_symptoms:
             symptoms = list(set(symptoms + new_symptoms))
+        print(f"SYMPTOMS FOUND: {symptoms}")
     except Exception as e:
         print(f"Error extracting symptoms: {e}")
     
-    # State-based response generation
-    if current_state == "welcome" or len(symptoms) < 2:
-        # Ask for more symptoms
+    logger.debug("INFO: Current state: %s, Symptoms: %s", current_state, symptoms)
+
+    # if current_state == "welcome" or len(symptoms) < 2:
+    #     return chat_response(
+    #         response_text="Thank you for sharing. Could you tell me more about your symptoms? What else are you experiencing?",
+    #         question={
+    #             "id": "follow_up_1",
+    #             "text": "Are there any other symptoms you're experiencing?"
+    #         },
+    #         symptoms=symptoms
+    #     )
+    
+    # elif current_state == "collecting_symptoms" and len(symptoms) >= 2:
+    #     try:
+    #         predictions: list[dict[str, Any]] = generate_predictions_from_core(symptoms)
+            
+    #         if not predictions:
+    #             return chat_response(
+    #                 response_text="I couldn't find matching conditions for these symptoms. Could you provide more details or additional symptoms?",
+    #                 symptoms=symptoms
+    #             )
+            
+    #         return chat_response(
+    #             response_text="Based on your symptoms, here are possible conditions I've identified:",
+    #             predictions=predictions,
+    #             symptoms=symptoms
+    #         )
+    #     except Exception as e:
+    #         print(f"Error generating predictions: {e}")
+    #         return chat_response(
+    #             response_text="I encountered an error analyzing your symptoms. Please try again.",
+    #             symptoms=symptoms
+    #         )
+        
+    try:
+        print(f"SYMPTOMS FOUND: {symptoms}")
+        predictions: list[dict[str, Any]] = generate_predictions_from_core(symptoms)
+        
+        if not predictions:
+            return chat_response(
+                response_text="I couldn't find matching conditions for these symptoms. Could you provide more details or additional symptoms?",
+                symptoms=symptoms
+            )
+        
         return chat_response(
-            response_text="Thank you for sharing. Could you tell me more about your symptoms? What else are you experiencing?",
-            question={
-                "id": "follow_up_1",
-                "text": "Are there any other symptoms you're experiencing?"
-            },
+            response_text="Based on your symptoms, here are possible conditions I've identified:",
+            predictions=predictions,
+            symptoms=symptoms
+        )
+    except Exception as e:
+        print(f"Error generating predictions: {e}")
+        return chat_response(
+            response_text="I encountered an error analyzing your symptoms. Please try again.",
             symptoms=symptoms
         )
     
-    elif current_state == "collecting_symptoms" and len(symptoms) >= 2:
-        # Generate predictions using core prediction engine
-        try:
-            predictions: list[dict[str, Any]] = generate_predictions_from_core(symptoms)
-            
-            if not predictions:
-                return chat_response(
-                    response_text="I couldn't find matching conditions for these symptoms. Could you provide more details or additional symptoms?",
-                    symptoms=symptoms
-                )
-            
-            return chat_response(
-                response_text="Based on your symptoms, here are possible conditions I've identified:",
-                predictions=predictions,
-                symptoms=symptoms
-            )
-        except Exception as e:
-            print(f"Error generating predictions: {e}")
-            return chat_response(
-                response_text="I encountered an error analyzing your symptoms. Please try again.",
-                symptoms=symptoms
-            )
-    
-    # Default response
     return chat_response(
         response_text="I understand. Could you please provide more details about your symptoms?",
         symptoms=symptoms
@@ -204,11 +244,9 @@ def generate_ai_response(user_input: str, session: dict[str, Any]) -> dict[str, 
 def generate_predictions_from_core(symptom_names: list[str]) -> list[dict[str, Any]]:
     """Generate disease predictions using core prediction engine"""
     try:
-        # Get symptom objects from cache
         symptoms_cache = get_all_symptoms_cache()
         all_symptoms_list = symptoms_cache.get_all_list()
         
-        # Match symptom names to symptom objects
         symptom_objects: list[Any] = []
         for symptom_name in symptom_names:
             for symptom in all_symptoms_list:
@@ -219,7 +257,6 @@ def generate_predictions_from_core(symptom_names: list[str]) -> list[dict[str, A
         if not symptom_objects:
             return []
         
-        # Get predictions from core engine (top 3)
         predictions = get_top_k_diseases_from_prediction_with_probablities(
             include_symptoms=symptom_objects,
             exclude_symptoms=None,
@@ -229,10 +266,8 @@ def generate_predictions_from_core(symptom_names: list[str]) -> list[dict[str, A
         if not predictions:
             return []
         
-        # Format predictions for response
         formatted_predictions: list[dict[str, Any]] = []
         for disease, confidence in predictions:
-            # Convert confidence score to percentage (0-1 to 0-100)
             confidence_percent = min(95, int(confidence * 100))
             
             formatted_predictions.append({
@@ -257,10 +292,8 @@ async def generate_prediction(
 ):
     """Generate disease predictions from symptoms list"""
     try:
-        # Extract symptom names
         symptom_names: list[str] = [symptom.name if hasattr(symptom, 'name') else str(symptom) for symptom in prediction_data.symptoms]
         
-        # Generate predictions using core engine
         predictions: list[dict[str, Any]] = generate_predictions_from_core(symptom_names)
         
         return success_response({
@@ -286,7 +319,7 @@ async def save_chat_session(
     
     sess = ChatSession.from_db_row(sess_row)
     
-    if sess.user_id != user["id"]:
+    if sess.user_id != user["user_id"]:
         raise HTTPException(status_code=403, detail="Access denied")
 
     symptoms = sess.symptoms()
@@ -296,7 +329,6 @@ async def save_chat_session(
         if symptoms and len(symptoms) > 3:
             title += f" and {len(symptoms)-3} more"
 
-    # Load messages
     msgs_rows = db.fetch_all(
         """
         SELECT * FROM chat_messages WHERE session_id = ?
@@ -307,7 +339,6 @@ async def save_chat_session(
     
     messages_list: list[dict[str, Any]] = [DBChatMessage.from_db_row(row).to_dict() for row in msgs_rows]
 
-    # Extract predictions from assistant messages if present
     predictions: list[Any] = []
     for msg_row in reversed(msgs_rows):
         msg = DBChatMessage.from_db_row(msg_row)
@@ -333,14 +364,13 @@ async def save_chat_session(
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
-            chat_id, user["id"], title, sess.created_at, now, "N/A",
+            chat_id, user["user_id"], title, sess.created_at, now, "N/A",
             json.dumps(symptoms, ensure_ascii=False),
             json.dumps(predictions or [], ensure_ascii=False),
             json.dumps(messages_list, ensure_ascii=False)
         )
     )
 
-    # Remove active session and messages
     db.execute("DELETE FROM chat_messages WHERE session_id = ?", (sess.id,))
     db.execute("DELETE FROM chat_sessions WHERE id = ?", (sess.id,))
     db.commit()
@@ -358,7 +388,7 @@ async def get_chat_session(session_id: str, user: dict[str, Any] = Depends(get_c
     
     sess = ChatSession.from_db_row(sess_row)
     
-    if sess.user_id != user["id"] and user.get("account_type") != "admin":
+    if sess.user_id != user["user_id"] and user.get("account_type") != "admin":
         raise HTTPException(status_code=403, detail="Access denied")
     
     msgs_rows = db.fetch_all(
@@ -392,7 +422,7 @@ async def delete_chat_session(session_id: str, user: dict[str, Any] = Depends(ge
     
     sess = ChatSession.from_db_row(sess_row)
     
-    if sess.user_id != user["id"] and user.get("account_type") != "admin":
+    if sess.user_id != user["user_id"] and user.get("account_type") != "admin":
         raise HTTPException(status_code=403, detail="Access denied")
     
     db.execute("DELETE FROM chat_sessions WHERE id = ?", (sess.id,))

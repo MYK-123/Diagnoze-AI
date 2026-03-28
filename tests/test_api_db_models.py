@@ -75,7 +75,7 @@ class TestUser(unittest.TestCase):
     def test_user_init(self):
         """Test User initialization"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -88,7 +88,7 @@ class TestUser(unittest.TestCase):
     def test_user_init_with_defaults(self):
         """Test User initialization with default values"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -102,14 +102,14 @@ class TestUser(unittest.TestCase):
     def test_user_init_with_custom_values(self):
         """Test User initialization with custom values"""
         user = User(
-            id="admin1",
+            user_id="admin1",
             email="admin@example.com",
             password_hash="hashed",
             first_name="Admin",
             last_name="User",
             age=30,
             gender="Male",
-            account_type="admin",
+            role="admin",
             phone="1234567890"
         )
         self.assertEqual(user.age, 30)
@@ -120,7 +120,7 @@ class TestUser(unittest.TestCase):
     def test_user_created_at_auto_set(self):
         """Test that created_at is auto-set if not provided"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -131,7 +131,7 @@ class TestUser(unittest.TestCase):
     def test_user_to_public_dict(self):
         """Test User.to_public_dict method"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -147,7 +147,7 @@ class TestUser(unittest.TestCase):
     def test_user_to_public_dict_includes_preferences(self):
         """Test that public dict includes preferences"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",

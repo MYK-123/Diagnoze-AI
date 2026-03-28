@@ -1,11 +1,28 @@
 import streamlit as st
+import content
 from utils.api_connect import get_api_client
 from datetime import datetime
 import time
 import json
+from pathlib import Path
+
+
+def _load_stylesheet():
+    """Load backend/styles.css and inject into the Streamlit page."""
+    try:
+        css_path = Path(__file__).resolve().parent.parent / "styles.css"
+        if css_path.exists():
+            css = css_path.read_text(encoding="utf-8")
+            st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    except Exception:
+        # Fail silently if stylesheet can't be loaded
+        pass
+
 
 def render_chat_page(router):
     """Main chat interface page - ONLY CHAT PAGE"""
+    # Inject custom stylesheet
+    _load_stylesheet()
     
     # Page header
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -100,23 +117,27 @@ def save_current_chat():
 
 # Message display
 def display_message(message):
-    """Display a chat message"""
-    if message["role"] == "user":
-        with st.chat_message("user"):
-            st.markdown(message["content"])
-            st.caption(message["timestamp"])
-    else:
-        with st.chat_message("assistant"):
-            st.markdown(message["content"])
-            st.caption(message["timestamp"])
-            
-            # Handle special message types
-            if message.get("type") == "prediction":
-                display_predictions(message.get("predictions", []))
-            elif message.get("type") == "question":
-                display_question(message.get("question", {}))
-            elif message.get("type") == "emergency":
-                display_emergency_warning(message.get("warning", {}))
+    """Display a chat message (rendered inside a bubble)."""
+    role = message.get("role", "assistant")
+    timestamp = message.get("timestamp", "")
+    content = message.get("content", "")
+
+    # Use Streamlit's chat message wrapper but render our own bubble HTML inside so CSS in styles.css can style it.
+    with st.chat_message(role):
+        st.markdown(
+            f'<div class="chat-row {role}">'
+            f'<div class="bubble {role}">{content}</div>'
+            f'</div>',
+            unsafe_allow_html=True)
+        st.caption(timestamp)
+
+    # Handle special message types
+    if message.get("type") == "prediction":
+        display_predictions(message.get("predictions", []))
+    elif message.get("type") == "question":
+        display_question(message.get("question", {}))
+    elif message.get("type") == "emergency":
+        display_emergency_warning(message.get("warning", {}))
 
 def display_predictions(predictions):
     """Display disease predictions as cards using core data"""

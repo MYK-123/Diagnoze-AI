@@ -1,10 +1,11 @@
 import streamlit as st
+from streamlit_router import StreamlitRouter
 from utils.api_connect import get_api_client
 import plotly.graph_objects as plotly_go
 from datetime import datetime, timedelta
 import os
 
-def render_dashboard():
+def render_dashboard(router: StreamlitRouter):
     st.title("User Dashboard")
     st.write("Welcome to your dashboard. Here you can view your health insights and recent activity.")
 

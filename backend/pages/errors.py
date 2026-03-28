@@ -22,7 +22,7 @@ def render_500_page():
     st.write("Sorry, something went wrong on our end. We've been notified and are looking into it.")
     st.image("https://media.giphy.com/media/3o7aD4grHwn87v5F3a/giphy.gif", use_column_width=True)
     if st.button("Retry"):
-        st.experimental_rerun()
+        st.rerun()
 
 def render_access_denied_page():
     """

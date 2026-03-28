@@ -71,7 +71,9 @@ class Database:
         self.conn.rollback()
 
 def init_db() -> None:
-    """Initialize database schema"""    
+    """Initialize database schema"""
+    db.core.db_initialize()
+    return
     conn = db.core.get_connection()
     cursor = conn.cursor()
     

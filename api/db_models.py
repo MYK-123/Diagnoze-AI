@@ -24,28 +24,30 @@ class User:
     
     def __init__(
         self,
-        id: str,
+        user_id: int,
+        username:str,
         email: str,
         password_hash: str,
         first_name: str,
         last_name: str,
         age: int = 18,
         gender: str = "prefer_not_to_say",
-        account_type: str = "user",
         phone: Optional[str] = None,
         preferences_json: str = "{}",
-        created_at: Optional[str] = None,
         last_login: Optional[str] = None,
         is_active: bool = True,
+        created_at: Optional[str] = None,
+        role: str = "user",
     ):
-        self.id = id
+        self.user_id = user_id
+        self.username = username
         self.email = email
         self.password_hash = password_hash
         self.first_name = first_name
         self.last_name = last_name
         self.age = age
         self.gender = gender
-        self.account_type = account_type
+        self.role = role
         self.phone = phone
         self.preferences_json = preferences_json
         self.created_at = created_at or _now()
@@ -55,13 +57,14 @@ class User:
     def to_public_dict(self) -> dict:
         """Convert to public dictionary"""
         return {
-            "id": self.id,
+            "user_id": self.user_id,
+            "username": self.username,
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "age": self.age,
             "gender": self.gender,
-            "account_type": self.account_type,
+            "role": self.role,
             "phone": self.phone,
             "created_at": self.created_at,
             "last_login": self.last_login,
@@ -73,14 +76,15 @@ class User:
     def from_db_row(row: dict) -> User:
         """Create User from database row"""
         return User(
-            id=row["id"],
+            user_id=row["user_id"],
+            username=row["username"],
             email=row["email"],
             password_hash=row["password_hash"],
             first_name=row["first_name"],
             last_name=row["last_name"],
             age=row["age"],
             gender=row["gender"],
-            account_type=row["account_type"],
+            role=row["role"],
             phone=row.get("phone"),
             preferences_json=row.get("preferences_json", "{}"),
             created_at=row.get("created_at"),
@@ -94,12 +98,14 @@ class SessionToken:
     def __init__(
         self,
         token: str,
-        user_id: str,
+        user_id: int,
+        username: str,
         created_at: Optional[str] = None,
         expires_at: Optional[str] = None,
     ):
         self.token = token
         self.user_id = user_id
+        self.username = username
         self.created_at = created_at or _now()
         self.expires_at = expires_at
     
@@ -114,6 +120,7 @@ class SessionToken:
         return SessionToken(
             token=row["token"],
             user_id=row["user_id"],
+            username=row.get("username", ""),
             created_at=row.get("created_at"),
             expires_at=row.get("expires_at"),
         )
@@ -124,7 +131,7 @@ class ChatSession:
     def __init__(
         self,
         id: str,
-        user_id: str,
+        user_id: int,
         created_at: Optional[str] = None,
         last_activity: Optional[str] = None,
         state: str = "welcome",
@@ -148,9 +155,14 @@ class ChatSession:
     @staticmethod
     def from_db_row(row: dict) -> ChatSession:
         """Create ChatSession from database row"""
+        uid = row.get("user_id")
+        try:
+            uid = int(uid) if uid is not None else None
+        except Exception:
+            pass
         return ChatSession(
             id=row["id"],
-            user_id=row["user_id"],
+            user_id=uid,
             created_at=row.get("created_at"),
             last_activity=row.get("last_activity"),
             state=row.get("state", "welcome"),
@@ -204,7 +216,7 @@ class ChatHistory:
     def __init__(
         self,
         id: str,
-        user_id: str,
+        user_id: int,
         title: str,
         created_at: Optional[str] = None,
         ended_at: Optional[str] = None,
@@ -241,9 +253,14 @@ class ChatHistory:
     @staticmethod
     def from_db_row(row: dict) -> ChatHistory:
         """Create ChatHistory from database row"""
+        uid = row.get("user_id")
+        try:
+            uid = int(uid) if uid is not None else None
+        except Exception:
+            pass
         return ChatHistory(
             id=row["id"],
-            user_id=row["user_id"],
+            user_id=uid,
             title=row["title"],
             created_at=row.get("created_at"),
             ended_at=row.get("ended_at"),

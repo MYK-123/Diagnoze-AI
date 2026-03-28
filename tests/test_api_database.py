@@ -10,9 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.database import (
-    get_connection, get_db, Database, init_db, DB_PATH, DATABASE_URL
-)
+from db.core import get_connection, get_db, DB_PATH, DATABASE_URL
+from api.database import Database, init_db
 
 
 class TestDatabaseConnection(unittest.TestCase):

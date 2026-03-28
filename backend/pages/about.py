@@ -35,7 +35,7 @@ def render_about_page():
             """
             For any inquiries, please contact us at:
             - **Email:** contact@diagnoze-ai.com
-            - **Address:** 123 Health Tech Avenue, Silicon Valley, CA 94043
+            - **Address:** P.M.S., Prayagraj, 211016
             """
         )
         st.info("Version: 1.0.0")
@@ -45,7 +45,7 @@ def render_about_page():
         st.header("Privacy Policy")
         st.markdown(
             """
-            **Last Updated:** October 26, 2023
+            **Last Updated:** March 26, 2026
 
             Your privacy is important to us. It is Diagnoze AI's policy to respect your privacy regarding any information we may collect from you across our website.
 
@@ -72,7 +72,7 @@ def render_about_page():
         st.header("Terms of Service")
         st.markdown(
             """
-            **Last Updated:** October 26, 2023
+            **Last Updated:** March 26, 2026
 
             By accessing this website, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.
 

@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "user_session" (
 	"token"	TEXT PRIMARY KEY NOT NULL,
 	"user_id"	INTEGER NOT NULL,
 	"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	"expires_at"	INTEGER NOT NULL,
+	"expires_at"	TEXT NOT NULL,
 	FOREIGN KEY("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "logs" (
@@ -97,15 +97,14 @@ CREATE TABLE IF NOT EXISTS "educational_content" (
 
 
 
-
 CREATE TABLE IF NOT EXISTS chat_sessions (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         state TEXT NOT NULL DEFAULT 'welcome',
         symptoms_json TEXT NOT NULL DEFAULT '[]',
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS chat_messages (
@@ -121,7 +120,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 
 CREATE TABLE IF NOT EXISTS chat_history (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
         title TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         ended_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS chat_history (
         symptoms_json TEXT NOT NULL DEFAULT '[]',
         predictions_json TEXT NOT NULL DEFAULT '[]',
         messages_json TEXT NOT NULL DEFAULT '[]',
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     );
 
 COMMIT;

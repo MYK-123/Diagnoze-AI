@@ -129,13 +129,13 @@ def build_prompt(chat_text, symptom_list):
         "Symptoms:"
     )
 
-def extracted_symptoms(chat_text, SYMPTOM_LIST):
+def extracted_symptoms(chat_message, SYMPTOM_LIST):
     MODEL_NAME = "t5-base"
     tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
     model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
     model.eval()
 
-    prompt = build_prompt
+    prompt = build_prompt(chat_message, SYMPTOM_LIST)
     inputs = tokenizer(
         prompt,
         return_tensors="pt",

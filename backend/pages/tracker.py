@@ -24,13 +24,13 @@ def render_tracker_page():
     # Fetch Tracker History
     try:
         with st.spinner("Loading your symptom history..."):
-            history = api.get_tracker_history()
+            history = [] # api.get_tracker_history()
             df = pd.DataFrame(history) if history else pd.DataFrame(columns=['date', 'symptom', 'severity', 'notes'])
             df['date'] = pd.to_datetime(df['date'], errors='coerce')
     except Exception as e:
         st.error(f"Failed to load your tracking history: {e}")
         if st.button("Retry"):
-            st.experimental_rerun()
+            st.rerun()
         return
 
     tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "📝 Log a Symptom", "📤 Export Data"])
@@ -85,9 +85,9 @@ def render_tracker_page():
                             "severity": severity,
                             "notes": notes
                         }
-                        api.add_symptom_log(log_data)
+                        # api.add_symptom_log(log_data)
                         st.success(f"Successfully logged '{symptom_name}'.")
-                        st.experimental_rerun()
+                        st.rerun()
                     except Exception as e:
                         st.error(f"Failed to log symptom: {e}")
 

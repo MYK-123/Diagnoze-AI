@@ -23,7 +23,7 @@ def render_medical_student_page():
 
     router = StreamlitRouter()
     register_routes(router)
-    router.run()
+    router.serve()
 
 def render_student_dashboard():
     """P25 - Student Dashboard"""
@@ -68,11 +68,11 @@ def render_progress_tracking():
     st.info("Learning path visualization and strength/weakness analysis coming soon.")
 
 def register_routes(router: StreamlitRouter):
-    router.map("/medical-student/dashboard", render_student_dashboard)
-    router.map("/medical-student/case-studies", render_case_studies_library)
-    router.map("/medical-student/learning-tools", render_learning_tools)
-    router.map("/medical-student/assessments", render_knowledge_assessments)
-    router.map("/medical-student/progress", render_progress_tracking)
+    router.map("/medical-student/dashboard", render_student_dashboard) # type: ignore
+    router.map("/medical-student/case-studies", render_case_studies_library) # type: ignore
+    router.map("/medical-student/learning-tools", render_learning_tools) # type: ignore
+    router.map("/medical-student/assessments", render_knowledge_assessments) # type: ignore
+    router.map("/medical-student/progress", render_progress_tracking) # type: ignore
 
 if __name__ == "__main__":
     st.session_state["logged_in"] = True

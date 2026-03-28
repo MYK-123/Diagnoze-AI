@@ -45,6 +45,9 @@ class Symptoms:
     
     def __iter__(self):
         return iter(self.__contents)
+    
+    def size(self):
+        return len(self.__contents)
 
     # --- Access all ---
     def get_all_list(self) -> list[Symptom]:

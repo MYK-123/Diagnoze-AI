@@ -152,7 +152,7 @@ class TestCreateSession(unittest.TestCase):
         """Test that create_session returns SessionToken"""
         # Create a user
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -167,7 +167,7 @@ class TestCreateSession(unittest.TestCase):
     def test_create_session_generates_token(self):
         """Test that create_session generates a token"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -182,7 +182,7 @@ class TestCreateSession(unittest.TestCase):
     def test_create_session_sets_expiration(self):
         """Test that create_session sets expiration"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -196,7 +196,7 @@ class TestCreateSession(unittest.TestCase):
     def test_create_session_stores_in_db(self):
         """Test that create_session stores token in database"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -215,7 +215,7 @@ class TestCreateSession(unittest.TestCase):
     def test_create_session_default_minutes(self):
         """Test create_session with default expiration minutes"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -236,7 +236,7 @@ class TestCreateSession(unittest.TestCase):
     def test_create_session_custom_minutes(self):
         """Test create_session with custom expiration minutes"""
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -304,7 +304,7 @@ class TestGetCurrentUser(unittest.TestCase):
         
         # Create user
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
@@ -350,7 +350,7 @@ class TestGetCurrentUser(unittest.TestCase):
         
         # Create user
         user = User(
-            id="user1",
+            user_id="user1",
             email="test@example.com",
             password_hash="hashed",
             first_name="John",
