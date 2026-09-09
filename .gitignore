@@ -1,5 +1,6 @@
 .venv
-*.pyc
+*.pyc*
 .devcontainer
 .vscode
 models
+*.sqlite3*

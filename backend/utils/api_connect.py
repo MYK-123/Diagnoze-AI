@@ -80,7 +80,7 @@ class APIClient:
         """Get specific symptom."""
         return self._make_request("GET", f"/medical/symptoms/{symptom_id}")
 
-    def get_diseases(self, search: str = None, category: str = None, severity: str = None) -> Dict:
+    def get_diseases(self, search: str = "", category: str = "", severity: str = "") -> Dict:
         """Get diseases list."""
         params = {}
         if search:

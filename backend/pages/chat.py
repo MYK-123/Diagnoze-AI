@@ -60,8 +60,8 @@ def render_chat_page(router):
     with chat_container:
         # Display chat messages
         if "chat_messages" in st.session_state:
-            for message in st.session_state.chat_messages:
-                display_message(message)
+            for message_index, message in enumerate(st.session_state.chat_messages):
+                display_message(message, message_index)
     
     # Input area
     st.markdown("---")
@@ -107,7 +107,8 @@ def save_current_chat():
     with col2:
         if st.button("Save"):
             response = api.save_chat_session(st.session_state.chat_session_id, title)
-            
+            st.write(f"TYPE: {type(response)}")
+            st.write(f"DATA: {response}")
             if response.get("success"):
                 st.success("Chat saved to history!")
                 st.session_state.chat_session_id = None
@@ -116,7 +117,7 @@ def save_current_chat():
                 st.error("Failed to save chat")
 
 # Message display
-def display_message(message):
+def display_message(message, message_index):
     """Display a chat message (rendered inside a bubble)."""
     role = message.get("role", "assistant")
     timestamp = message.get("timestamp", "")
@@ -133,13 +134,13 @@ def display_message(message):
 
     # Handle special message types
     if message.get("type") == "prediction":
-        display_predictions(message.get("predictions", []))
+        display_predictions(message.get("predictions", []), message_index)
     elif message.get("type") == "question":
         display_question(message.get("question", {}))
     elif message.get("type") == "emergency":
         display_emergency_warning(message.get("warning", {}))
 
-def display_predictions(predictions):
+def display_predictions(predictions, message_index):
     """Display disease predictions as cards using core data"""
     for pred in predictions:
         with st.container(border=True):
@@ -159,13 +160,13 @@ def display_predictions(predictions):
             # Action buttons
             col1, col2, col3 = st.columns(3)
             with col1:
-                if st.button("📋 Details", key=f"explain_{pred['id']}"):
+                if st.button("📋 Details", key=f"explain_{message_index}_{pred['id']}"):
                     show_disease_explanation(pred)
             with col2:
-                if st.button("📚 Learn", key=f"learn_{pred['id']}"):
+                if st.button("📚 Learn", key=f"learn_{message_index}_{pred['id']}"):
                     show_educational_content(pred['id'])
             with col3:
-                if st.button("➕ Add Symptom", key=f"add_{pred['id']}"):
+                if st.button("➕ Add Symptom", key=f"add_{message_index}_{pred['id']}"):
                     st.session_state.show_add_symptom = True
             
             # Emergency warning if applicable
@@ -292,8 +293,5 @@ def show_educational_content(disease_id):
                     st.info("✓ Verified Content")
         else:
             st.write("Educational content not available.")
-
-if __name__ == "__main__":
-    render_chat_page(None)
 
 

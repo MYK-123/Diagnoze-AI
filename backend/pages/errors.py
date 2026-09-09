@@ -2,7 +2,7 @@
 import streamlit as st
 import time
 
-def render_404_page():
+def render_404_page(router):
     """
     Renders the 404 Not Found page (P37).
     """
@@ -11,9 +11,9 @@ def render_404_page():
     st.write("Oops! The page you're looking for doesn't seem to exist.")
     st.image("https://media.giphy.com/media/l2JpT4bQ9C1y7iSgU/giphy.gif", use_column_width=True)
     if st.button("Go to Dashboard"):
-        st.switch_page("app.py") # Assumes main router is app.py
+        router.redirect(*router.build("home")) # Assumes main router is app.py
 
-def render_500_page():
+def render_500_page(router):
     """
     Renders the 500 Server Error page (P38).
     """
@@ -24,7 +24,7 @@ def render_500_page():
     if st.button("Retry"):
         st.rerun()
 
-def render_access_denied_page():
+def render_access_denied_page(router):
     """
     Renders the Access Denied page (P39).
     """
@@ -33,7 +33,7 @@ def render_access_denied_page():
     st.warning("You do not have the necessary permissions to view this page.")
     st.write("If you believe this is an error, please contact your system administrator.")
     if st.button("Go to Dashboard"):
-        st.switch_page("app.py")
+        router.redirect(*router.build("home"))
 
 def render_maintenance_page():
     """
@@ -45,7 +45,7 @@ def render_maintenance_page():
     st.write("Estimated completion time: In a few hours.")
     st.progress(50)
 
-def render_session_expired_page():
+def render_session_expired_page(router):
     """
     Renders the Session Expired page (P41) and redirects.
     """
@@ -57,7 +57,7 @@ def render_session_expired_page():
     with st.spinner("Redirecting in 3 seconds..."):
         time.sleep(3)
     
-    st.switch_page("pages/auth.py") # Redirect to the login page
+    router.redirect(*router.build("login")) # Redirect to the login page
 
 def render_loading_page():
     """
@@ -70,17 +70,17 @@ def render_loading_page():
     st.success("Loaded!")
 
 # Example of how to call these functions
-if __name__ == "__main__":
-    PAGES = {
-        "404 Not Found": render_404_page,
-        "500 Server Error": render_500_page,
-        "Access Denied": render_access_denied_page,
-        "Maintenance": render_maintenance_page,
-        "Session Expired": render_session_expired_page,
-        "Loading": render_loading_page,
-    }
+# if __name__ == "__main__":
+#     PAGES = {
+#         "404 Not Found": render_404_page,
+#         "500 Server Error": render_500_page,
+#         "Access Denied": render_access_denied_page,
+#         "Maintenance": render_maintenance_page,
+#         "Session Expired": render_session_expired_page,
+#         "Loading": render_loading_page,
+#     }
     
-    st.sidebar.title("Error Page Examples")
-    selection = st.sidebar.radio("Go to", list(PAGES.keys()))
-    page = PAGES[selection]
-    page()
+#     st.sidebar.title("Error Page Examples")
+#     selection = st.sidebar.radio("Go to", list(PAGES.keys()))
+#     page = PAGES[selection]
+#     page()

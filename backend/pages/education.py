@@ -2,12 +2,15 @@ import streamlit as st
 from utils.auth import check_authentication
 from utils.api_connect import get_api_client
 
-def render_education_page():
+def render_education_page(router):
     """
     Renders the Educational Library page (P12).
     Allows browsing diseases and symptoms. Requires authentication.
     """
     st.set_page_config(page_title="Educational Library - Diagnoze AI", layout="wide")
+
+    if st.button("Home"):
+        router.redirect(*router.build("home"))
 
     if not check_authentication():
         st.error("You must be logged in to view this page.")
@@ -27,7 +30,7 @@ def render_education_page():
         render_disease_details(st.session_state.selected_disease, api)
         if st.button("⬅️ Back to Library"):
             st.session_state.selected_disease = None
-            st.experimental_rerun()
+            st.rerun()
         return
 
     # Search and filter UI
@@ -45,7 +48,10 @@ def render_education_page():
             # Filtering logic would be applied here if the API supports it
             # For now, we fetch all and filter client-side as a fallback
             diseases = api.get_diseases()
-
+        
+        data = diseases.get("data", [])
+        diseases = data.get("diseases", [])
+        
         if category != "All":
             # This is a placeholder for client-side filtering.
             # Ideally, the API would handle category filtering.
@@ -54,7 +60,7 @@ def render_education_page():
         if not diseases:
             st.info("No diseases found matching your criteria.")
             st.stop()
-
+        
         # Grid layout for disease cards
         cols = st.columns(3)
         for i, disease in enumerate(diseases):
@@ -64,10 +70,10 @@ def render_education_page():
                     st.write(disease.get("description", "No description available.")[:100] + "...")
                     if st.button("Learn More", key=f"disease_{disease.get('id')}"):
                         st.session_state.selected_disease = disease
-                        st.experimental_rerun()
+                        st.rerun()
     
     except Exception as e:
-        st.error(f"Failed to load educational content: {e}")
+        st.error(f"Failed to load educational content: {e}: lineno= {e.__traceback__.tb_lineno}")
         st.button("Retry")
 
 def render_disease_details(disease, api):
@@ -77,18 +83,19 @@ def render_disease_details(disease, api):
 
     try:
         # Fetch detailed info
-        details = api.get_disease_info(disease.get("id"))
-        
+        details = api.get_disease_info(disease.get("id")).get("data", [])
+
         st.subheader("Symptoms")
         symptoms = details.get("symptoms", [])
         if symptoms:
             for sym in symptoms:
-                st.markdown(f"- **{sym.get('name')}**: {sym.get('description')}")
+                st.markdown(f"- **{sym.get('name', '')}**: {sym.get('description', '')}")
         else:
             st.write("No specific symptoms listed for this disease.")
 
         st.subheader("Educational Resources")
-        educational_content = api.get_educational_content(disease.get("id"))
+        educational_content = api.get_educational_content(disease.get("id")).get("data", []).get("sections", [])
+        
         if educational_content:
             for article in educational_content:
                 with st.expander(article.get("title")):
@@ -99,10 +106,3 @@ def render_disease_details(disease, api):
     except Exception as e:
         st.error(f"Could not fetch details for {disease.get('name', 'N/A')}: {e}")
 
-if __name__ == "__main__":
-    # This part is for direct testing of the page
-    # You would need to mock the API calls and authentication
-    # For example:
-    # st.session_state['authenticated'] = True
-    # st.session_state['user_profile'] = {'name': 'Test User'}
-    render_education_page()

@@ -1,11 +1,15 @@
 import streamlit as st
 from utils.auth import check_authentication
 
-def render_emergency_page():
+def render_emergency_page(router):
     """
     Renders the Emergency Guidelines page (P14).
     This page requires authentication.
     """
+
+    if st.button("Home"):
+        router.redirect(*router.build("home"))
+    
     st.set_page_config(page_title="Emergency Guidelines - Diagnoze AI", layout="wide")
 
     if not check_authentication():
@@ -79,5 +83,3 @@ def render_emergency_page():
     if st.button("Download or Print Guidelines"):
         st.info("Print functionality would be implemented here. For now, please use your browser's print function (Ctrl+P).")
 
-if __name__ == "__main__":
-    render_emergency_page()

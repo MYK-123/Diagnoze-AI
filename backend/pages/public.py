@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_router import StreamlitRouter
 
-def render_contact_page():
+def render_contact_page(router):
     """P34 - Contact Us"""
     st.title("📞 Contact Us")
 
@@ -41,7 +41,7 @@ def render_contact_page():
         st.write("**Phone:** +1 (555) 123-4567")
 
     if st.button("Home"):
-        st.experimental_set_query_params(page="dashboard")
+        router.redirect(*router.build("dashboard"))
 
 def render_research_page():
     """P35 - Research References"""

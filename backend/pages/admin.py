@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.figure_factory as ff
+# import plotly.express as px
+# import plotly.figure_factory as ff
 from datetime import datetime, timedelta
 from utils.auth import check_authentication
 from utils.api_connect import get_api_client
 
-def render_admin_page():
+def render_admin_page(router):
     if not check_authentication():
         return
 

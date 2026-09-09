@@ -1,8 +1,8 @@
 import streamlit as st
 
-def render_about_page():
+def render_about_page(router):
     if st.button("Home"):
-        st.experimental_set_query_params(page="dashboard")
+        router.redirect(*router.build("home"))
 
     st.title("About Diagnoze AI")
 

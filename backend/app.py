@@ -94,7 +94,7 @@ def profile(router: StreamlitRouter):
 def tracker(router: StreamlitRouter):
     if check_authentication():
         from pages.tracker import render_tracker_page
-        render_tracker_page()
+        render_tracker_page(router)
     else:
         router.redirect(*router.build("login"))
 
@@ -102,7 +102,7 @@ def tracker(router: StreamlitRouter):
 def education(router: StreamlitRouter):
     if check_authentication():
         from pages.education import render_education_page
-        render_education_page()
+        render_education_page(router)
     else:
         router.redirect(*router.build("login"))
 
@@ -110,7 +110,7 @@ def education(router: StreamlitRouter):
 def admin(router: StreamlitRouter):
     if check_authentication() and st.session_state.user_role == "admin":
         from pages.admin import render_admin_page
-        render_admin_page()
+        render_admin_page(router)
     else:
         st.error("Access denied")
         router.redirect(*router.build("dashboard"))
@@ -119,7 +119,7 @@ def admin(router: StreamlitRouter):
 def medical_student(router: StreamlitRouter):
     if check_authentication() and st.session_state.user_role == "medical_student":
         from pages.medical_student import render_medical_student_page
-        render_medical_student_page()
+        render_medical_student_page(router)
     else:
         st.error("Access denied")
         router.redirect(*router.build("dashboard"))
@@ -127,39 +127,38 @@ def medical_student(router: StreamlitRouter):
 @router.map("/faq")
 def faq(router: StreamlitRouter):
     from pages.faq import render_faq_page
-    render_faq_page()
+    render_faq_page(router)
 
 @router.map("/about")
 def about(router: StreamlitRouter):
     from pages.about import render_about_page
-    render_about_page()
+    render_about_page(router)
 
 @router.map("/emergency")
 def emergency(router: StreamlitRouter):
     from pages.emergency import render_emergency_page
-    render_emergency_page()
+    render_emergency_page(router)
 
 @router.map("/safety")
 def safety(router: StreamlitRouter):
     from pages.safety import render_safety_page
-    render_safety_page()
+    render_safety_page(router)
 
 @router.map("/public")
 def public(router: StreamlitRouter):
-    # from pages.public import render_public_page
-    # render_public_page()
-    pass
+    from pages.public import render_contact_page
+    render_contact_page(router)
 
 # Error pages
 @router.map("/404")
 def page_not_found(router: StreamlitRouter):
     from pages.errors import render_404_page
-    render_404_page()
+    render_404_page(router)
 
 @router.map("/500")
 def server_error(router: StreamlitRouter):
     from pages.errors import render_500_page
-    render_500_page()
+    render_500_page(router)
 
 @router.map("/logout")
 def logout(router: StreamlitRouter):
@@ -178,18 +177,26 @@ def render_navigation():
     if st.session_state.authenticated:
         st.sidebar.title(f"Welcome, {st.session_state.get('user_info', {}).get('full_name', '')}")
 
-        st.sidebar.page_link("app.py", label="🏠 Dashboard")
-        st.sidebar.page_link("pages/chat.py", label="💬 New Chat")
-        st.sidebar.page_link("pages/history.py", label="📋 Chat History")
-        st.sidebar.page_link("pages/tracker.py", label="📈 Symptom Tracker")
-        st.sidebar.page_link("pages/education.py", label="📚 Education")
-        st.sidebar.page_link("pages/profile.py", label="👤 Profile")
+        if st.sidebar.button("🏠 Dashboard"):
+            router.redirect(*router.build("dashboard"))
+        if st.sidebar.button("💬 New Chat"):
+            router.redirect(*router.build("chat"))
+        if st.sidebar.button("📋 Chat History"):
+            router.redirect(*router.build("history"))
+        if st.sidebar.button("📈 Symptom Tracker"):
+            router.redirect(*router.build("tracker"))
+        if st.sidebar.button("📚 Education"):
+            router.redirect(*router.build("education"))
+        if st.sidebar.button("👤 Profile"):
+            router.redirect(*router.build("profile"))
 
         if st.session_state.user_role == "admin":
-            st.sidebar.page_link("pages/admin.py", label="⚙️ Admin")
+            if st.sidebar.button("⚙️ Admin"):
+                router.redirect(*router.build("admin"))
 
         if st.session_state.user_role == "medical_student":
-            st.sidebar.page_link("pages/medical_student.py", label="🎓 Student Portal")
+            if st.sidebar.button("🎓 Student Portal"):
+                router.redirect(*router.build("medical-student"))
 
         st.sidebar.markdown("---")
         if st.sidebar.button("🔒 Logout"):
@@ -197,10 +204,17 @@ def render_navigation():
             st.rerun()
 
     else:
-        st.sidebar.page_link("app.py", label="Home")
-        st.sidebar.page_link("pages/public.py", label="Contact")
-        st.sidebar.page_link("pages/about.py", label="About Us")
-        st.sidebar.page_link("pages/auth.py", label="Login / Register")
+        if st.sidebar.button("🏠 Homepage"):
+            router.redirect(*router.build("home"))
+        
+        if st.sidebar.button("Contacts"):
+            router.redirect(*router.build("public"))
+        
+        if st.sidebar.button("About Us"):
+            router.redirect(*router.build("about"))
+        
+        if st.sidebar.button("Login"):
+            router.redirect(*router.build("login"))
 
 # Main app function
 def main():
@@ -217,7 +231,7 @@ def main():
         # Fallback to 404 or 500
         st.error(f"An error occurred: {e}")
         from pages.errors import render_500_page
-        render_500_page()
+        render_500_page(router)
 
     # Footer
     st.markdown("---")

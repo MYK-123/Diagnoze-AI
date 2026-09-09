@@ -4,7 +4,7 @@ from utils.auth import check_authentication
 from utils.api_connect import get_api_client
 from streamlit_router import StreamlitRouter
 
-def render_medical_student_page():
+def render_medical_student_page(router):
     """
     Renders the Medical Student Portal (P25-P29).
     A specialized learning environment for users with the 'medical_student' role.

@@ -6,11 +6,17 @@ import json
 
 def render_history_page(router):
     """Chat history page"""
+
+    if st.button("Home"):
+        router.redirect(*router.build("dashboard"))
     st.title("📋 Chat History")
     
     # Get history from API
     api = get_api_client()
     response = api.get_chat_history()
+
+    st.write(f"TYPE: {type(response)}")
+    st.write(f"DATA: {response}")
     
     if not response.get("success"):
         st.error("Unable to load chat history")

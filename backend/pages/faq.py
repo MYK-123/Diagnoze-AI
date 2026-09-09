@@ -1,11 +1,15 @@
 
 import streamlit as st
 
-def render_faq_page():
+def render_faq_page(router):
     """
     Renders the FAQ / Help Center page (P15).
     Provides answers to frequently asked questions and offers support options.
     """
+
+    if st.button("Home"):
+        router.redirect(*router.build("home"))
+    
     st.set_page_config(page_title="FAQ & Help Center", layout="wide")
     st.title("🙋‍♂️ FAQ & Help Center")
 
@@ -73,5 +77,4 @@ def render_faq_page():
                 st.success("Thank you for your feedback!")
                 # In a real app, this would send an email or save to a database.
 
-if __name__ == "__main__":
-    render_faq_page()
+

@@ -312,8 +312,10 @@ async def save_chat_session(
 ):
     """Save chat session to history"""
     db = Database(conn)
+
+    print("Saving CHAT SESSION")
     
-    sess_row = db.fetch_one("SELECT * FROM chat_sessions WHERE id = ?", (payload.session_id,))
+    sess_row = db.fetch_one("SELECT * FROM chat_messages WHERE session_id = ?", (payload.session_id,))
     if not sess_row:
         raise HTTPException(status_code=404, detail="Chat session not found")
     
@@ -370,6 +372,8 @@ async def save_chat_session(
             json.dumps(messages_list, ensure_ascii=False)
         )
     )
+
+    print("CHAT SESSION SAVED")
 
     db.execute("DELETE FROM chat_messages WHERE session_id = ?", (sess.id,))
     db.execute("DELETE FROM chat_sessions WHERE id = ?", (sess.id,))

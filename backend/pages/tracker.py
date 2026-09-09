@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from datetime import datetime
 from utils.auth import check_authentication
 from utils.api_connect import get_api_client
 
-def render_tracker_page():
+def render_tracker_page(router):
     """
     Renders the Symptom Tracker page.
     Allows users to log and visualize their symptoms over time.
@@ -17,7 +16,7 @@ def render_tracker_page():
     st.title("📈 Symptom Tracker")
 
     if st.button("Home"):
-        st.experimental_set_query_params(page="dashboard")
+        router.redirect(*router.build("dashboard"))
 
     api = get_api_client()
 
@@ -107,5 +106,4 @@ def render_tracker_page():
         else:
             st.info("No data to export.")
 
-if __name__ == "__main__":
-    render_tracker_page()
+

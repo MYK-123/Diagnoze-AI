@@ -1,11 +1,18 @@
 import streamlit as st
 from streamlit_router import StreamlitRouter
+import streamlit_router
 from utils.api_connect import get_api_client
-import plotly.graph_objects as plotly_go
 from datetime import datetime, timedelta
-import os
 
 def render_dashboard(router: StreamlitRouter):
+
+    with st.container(vertical_alignment="center"):
+        col1, col2 = st.columns([9,1])
+        with col2:
+            if st.button("Log Out"):
+                router.redirect(*router.build("logout"))
+    
+    
     st.title("User Dashboard")
     st.write("Welcome to your dashboard. Here you can view your health insights and recent activity.")
 
@@ -25,14 +32,31 @@ def render_dashboard(router: StreamlitRouter):
 
     # Dynamically generate buttons for all pages
     pages = [
-        "about", "admin", "auth", "chat", "dashboard", "education", "emergency", "errors", "faq", "history", "medical_student", "profile", "public", "safety", "tracker"
+        ("About", "about"),
+        ("Admin", "admin"),
+        ("Chat", "chat"),
+        ("Education", "education"),
+        ("Emergency", "emergency"),
+        ("FAQ", "faq"),
+        # ("History", "history"),
+        # ("Medical Student", "medical_student"),
+        ("Profile", "profile"),
+        ("Contact", "public"),
+        ("Safety", "safety"),
+        ("Tracker", "tracker"),
     ]
+    # pages = [
+    #     "about", "admin", "auth", "chat", "dashboard", "education", "emergency", "faq", "history", "medical_student", "profile", "public", "safety", "tracker"
+    # ]
 
     cols = st.columns(3)  # Organize buttons into 3 columns
-    for idx, page in enumerate(pages):
+    for idx, (page_name, rout) in enumerate(pages):
         with cols[idx % 3]:
-            if st.button(page.capitalize()):
-                os.system(f"streamlit run backend/pages/{page}.py")
+            if st.button(page_name, key=f"nav_{rout}"):
+                try:
+                    router.redirect(*router.build(rout))
+                except Exception as e:
+                    st.error(f"Coudn't navigate to: {rout}: {e}")
 
     st.subheader("Recent Activity")
     st.write("Here are your recent health predictions:")
@@ -43,8 +67,5 @@ def render_dashboard(router: StreamlitRouter):
     ]
     for prediction in recent_predictions:
         st.write(f"{prediction['date']}: {prediction['condition']} ({prediction['confidence']})")
-
-if __name__ == "__main__":
-    render_dashboard()
 
 
